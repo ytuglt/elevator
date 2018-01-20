@@ -5,17 +5,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.shaoxia.elevator.model.MDevice;
+
 import java.util.List;
 
 /**
  * Created by gonglt1 on 18-1-11.
  */
 
-public class MyRecycleAdapter extends RecyclerView.Adapter<MyRecycleAdapter.MyViewHolder> {
+public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.MyViewHolder> {
 
-    private List<String> dataList;
+    private List<MDevice> dataList;
 
-    public MyRecycleAdapter(List<String> list) {
+    public DevicesAdapter(List<MDevice> list) {
         dataList = list;
     }
 
@@ -29,7 +31,8 @@ public class MyRecycleAdapter extends RecyclerView.Adapter<MyRecycleAdapter.MyVi
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        holder.textView.setText(dataList.get(position));
+        holder.tVFloor.setText(dataList.get(position).getDevice().getName());
+        holder.tVId.setText(dataList.get(position).getElevatorId());
     }
 
     @Override
@@ -38,12 +41,14 @@ public class MyRecycleAdapter extends RecyclerView.Adapter<MyRecycleAdapter.MyVi
     }
 
     public static class  MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView textView;
+        public TextView tVFloor;
+        public TextView tVId;
 
         public MyViewHolder(View itemView) {
             super(itemView);
 
-            textView = itemView.findViewById(R.id.textView);
+            tVFloor = itemView.findViewById(R.id.floor);
+            tVId = itemView.findViewById(R.id.elevator_id);
         }
 
 
