@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Elevator</string>
+    <string name="main_actionbar_title">周边电梯</string>
+    <string name="out_call">外呼</string>
+    <string name="in_call">内呼</string>
+
+    <string name="gatt_services_read">Read</string>
+    <string name="gatt_services_write">Write</string>
+    <string name="gatt_services_notify">Notify</string>
+    <string name="gatt_services_indicate">Indicate</string>
+
+    <!-- Blood pressure profile elements -->
+    <string name="blood_pressure">Blood Pressure</string>
+    <string name="blood_pressure_systolic">SYS</string>
+    <string name="blood_pressure_diastolic">DIA</string>
+    <string name="blood_pressure_start_btn">START</string>
+    <string name="blood_pressure_stop_btn">STOP</string>
+    <string name="blood_pressure_mmHg">mmHg</string>
+    <string name="blood_pressure_kPa"> kPa</string>
+
+</resources>
