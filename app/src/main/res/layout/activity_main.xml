@@ -65,6 +65,7 @@
                 android:background="#dcdcdc" />
 
             <android.support.v7.widget.RecyclerView
+                android:id="@+id/in_call_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 

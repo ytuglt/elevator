@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="98dp">
+    android:layout_height="98dp"
+    android:background="@drawable/list_item_backgroud">
 
     <TextView
         android:id="@+id/floor"
@@ -16,14 +17,16 @@
         android:layout_height="28dp"
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/elevator_id"
-        android:src="@drawable/icon_elevator"/>
+        android:src="@drawable/icon_elevator"
+        android:layout_marginRight="8dp"/>
 
     <TextView
         android:id="@+id/elevator_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="16dp"
+        android:layout_alignParentEnd="true"
+        android:paddingEnd="16dp"
+        android:layout_centerVertical="true"
         android:textColor="#626565"
         android:textSize="14dp" />
 

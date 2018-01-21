@@ -1,6 +1,7 @@
 package com.shaoxia.elevator.bluetoothle;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,12 +12,14 @@ import android.widget.Toast;
 import com.shaoxia.elevator.R;
 import com.shaoxia.elevator.bluetoothle.BlueToothLeService.BluetoothLeService;
 import com.shaoxia.elevator.bluetoothle.utils.Utils;
+import com.shaoxia.elevator.log.Logger;
 
 /**
  * Created by gonglt1 on 18-1-20.
  */
 
 public class BleHelper {
+    private static final String TAG = "BleHelper";
 
     /**
      * 检查蓝牙是否可用
@@ -62,7 +65,7 @@ public class BleHelper {
     /**
      * 初始化服务
      */
-    private  static void initService(Context context) {
+    public static void initService(Context context) {
         Intent gattServiceIntent = new Intent(context.getApplicationContext(),
                 BluetoothLeService.class);
         context.startService(gattServiceIntent);
@@ -71,7 +74,7 @@ public class BleHelper {
     /**
      * 初始化广播
      */
-    private static void initBroadcast(Context context, BroadcastReceiver receiver) {
+    public static void initBroadcast(Context context, BroadcastReceiver receiver) {
         //注册广播接收者，接收消息
         context.registerReceiver(receiver, Utils.makeGattUpdateIntentFilter());
     }
@@ -80,6 +83,27 @@ public class BleHelper {
      * ble 取消连接
      */
     public static void disconnectDevice() {
+        Logger.d(TAG, "disconnectDevice: ");
         BluetoothLeService.disconnect();
+        BleManger.getInstance().setBleState(BleManger.State.IDLE);
     }
+
+    /**
+     * ble 连接
+     */
+    public static void connectDevice(Context context, String address, String name) {
+        Logger.d(TAG, "connectDevice: ");
+        //如果是连接状态，断开，重新连接
+        if (BluetoothLeService.getConnectionState() != BluetoothLeService.STATE_DISCONNECTED) {
+            BluetoothLeService.disconnect();
+        }
+        BleManger.getInstance().setBleState(BleManger.State.CONNECTING);
+        BluetoothLeService.connect(address, name, context);
+    }
+
+    public static String getPorperties(Context context, BluetoothGattCharacteristic item) {
+        return Utils.getPorperties(context, item);
+    }
+
 }
+

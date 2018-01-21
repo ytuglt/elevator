@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class L {
-    public static final String LOG_TAG = "XuiDeskClock";
+    public static final String LOG_TAG = "ShaoXiaoElevator";
 
     private static final String VERSION_ENG = "eng";
     private static final String VERSION_USER = "user";

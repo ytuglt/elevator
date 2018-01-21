@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import com.shaoxia.elevator.bluetoothle.BleHelper;
 import com.shaoxia.elevator.bluetoothle.BleManger;
@@ -23,43 +25,18 @@ import java.util.List;
 
 public class MainActivity extends BaseActivity {
     private static final String TAG = "MainActivity";
-    private RecyclerView mRecycleView;
+    private RecyclerView mOutRecycleView;
     private static BluetoothAdapter mBluetoothAdapter;
 
     private Handler mHander;
     private BleManger mBleManger;
 
     private List<MDevice> mDevices = new ArrayList<>();
-   private  DevicesAdapter mDevicesAdapter;
+    private DevicesAdapter mDevicesAdapter;
 
-    /**
-     * BroadcastReceiver for receiving the GATT communication status
-     */
-    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            // Status received when connected to GATT Server
-            //连接成功
-            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                System.out.println("--------------------->连接成功");
-                //搜索服务
-                BluetoothLeService.discoverServices();
-            }
-            // Services Discovered from GATT Server
-            else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED
-                    .equals(action)) {
-//                mHander.removeCallbacks(dismssDialogRunnable);
-//                progressDialog.dismiss();
-//                prepareGattServices(BluetoothLeService.getSupportedGattServices());
-            } else if (action.equals(BluetoothLeService.ACTION_GATT_DISCONNECTED)) {
-//                progressDialog.dismiss();
-                //connect break (连接断开)
-//                showDialog(getString(R.string.conn_disconnected_home));
-            }
-
-        }
-    };
+    private RecyclerView mInRycycleView;
+    private List<MDevice> mInDevices = new ArrayList<>();
+    private DevicesAdapter mInDevicesAdapater;
 
     /**
      * 发现设备时 处理方法
@@ -73,12 +50,23 @@ public class MainActivity extends BaseActivity {
                 public void run() {
                     Logger.d(TAG, "run: device name is : " + device.getName());
                     MDevice mDev = new MDevice(device, rssi);
-                    if (mDevices.contains(mDev))
+                    if (mDevices.contains(mDev) || !mDev.isElevator()) {
+                        Logger.d(TAG, "run: devices contains devices or not elevator");
                         return;
-                    mDevices.add(mDev);
-                    if (mDevicesAdapter != null) {
-                        mDevicesAdapter.notifyDataSetChanged();
                     }
+                    Logger.d(TAG, "run: add device" + mDev.getDevice().getName());
+                    if (mDev.isInCall()) {
+                        mInDevices.add(mDev);
+                        if (mInDevicesAdapater != null) {
+                            mInDevicesAdapater.notifyDataSetChanged();
+                        }
+                    } else {
+                        mDevices.add(mDev);
+                        if (mDevicesAdapter != null) {
+                            mDevicesAdapter.notifyDataSetChanged();
+                        }
+                    }
+
                 }
             });
         }
@@ -95,6 +83,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logger.d(TAG, "onCreate: ");
         setContentView(R.layout.activity_main);
 
         mBleManger = BleManger.getInstance();
@@ -106,25 +95,63 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        BleHelper.initBle(this, mGattUpdateReceiver);
+        Logger.d(TAG, "onStart: ");
+        BleHelper.initService(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        Logger.d(TAG, "onResume: ");
         startScan();
     }
 
     private void initView() {
         initRecycleView();
+        initInRecycleView();
     }
 
     private void initRecycleView() {
-        mRecycleView = findViewById(R.id.out_call_list);
-        mRecycleView.setLayoutManager(new LinearLayoutManager(this));
+        mOutRecycleView = findViewById(R.id.out_call_list);
+        mOutRecycleView.setLayoutManager(new LinearLayoutManager(this));
+        mOutRecycleView.addItemDecoration(new RecycleViewDivider(this));
 
         mDevicesAdapter = new DevicesAdapter(mDevices);
-        mRecycleView.setAdapter(mDevicesAdapter);
+        mOutRecycleView.setAdapter(mDevicesAdapter);
+        mDevicesAdapter.setOnItemClickListener(new DevicesAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View itemView, int position) {
+                Intent intent = new Intent(MainActivity.this, OutCallActivity.class);
+                String name = mDevices.get(position).getDevName();
+                String address = mDevices.get(position).getDevAddress();
+                intent.putExtra("dev_name",name);
+                intent.putExtra("dev_mac", address);
+                Logger.d(TAG, "onItemClick: name = " + name + ",adrress = " + address);
+                startActivity(intent);
+            }
+        });
+    }
+
+    private void initInRecycleView() {
+        mInRycycleView = findViewById(R.id.in_call_list);
+        mInRycycleView.setLayoutManager(new LinearLayoutManager(this));
+        mInRycycleView.addItemDecoration(new RecycleViewDivider(this));
+
+        mInDevicesAdapater = new DevicesAdapter(mInDevices);
+        mInRycycleView.setAdapter(mInDevicesAdapater);
+
+        mInDevicesAdapater.setOnItemClickListener(new DevicesAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View itemView, int position) {
+                Intent intent = new Intent(MainActivity.this, InCallActivity.class);
+                String name = mInDevices.get(position).getDevName();
+                String address = mInDevices.get(position).getDevAddress();
+                intent.putExtra("dev_name",name);
+                intent.putExtra("dev_mac", address);
+                Logger.d(TAG, "onItemClick: name = " + name + ",adrress = " + address);
+                startActivity(intent);
+            }
+        });
     }
 
 
@@ -134,6 +161,9 @@ public class MainActivity extends BaseActivity {
         public void run() {
             Logger.d(TAG, "stopScanRunnable run: ");
             stopScan();
+            if (mInDevices.size() <= 0 && mDevices.size() <= 0) {
+                Toast.makeText(MainActivity.this, "未发现设备", Toast.LENGTH_SHORT).show();
+            }
         }
     };
 
@@ -154,6 +184,7 @@ public class MainActivity extends BaseActivity {
      * 版本号21之前的调用该方法搜索
      */
     private void scanPrevious21Version() {
+        Logger.d(TAG, "scanPrevious21Version: ");
         //10秒后停止扫描
         mHander.postDelayed(stopScanRunnable, Configure.DEFAULT_SCAN_TIME);
         mBluetoothAdapter.startLeScan(mLeScanCallback);
@@ -167,5 +198,12 @@ public class MainActivity extends BaseActivity {
         mBluetoothAdapter.stopLeScan(mLeScanCallback);
         mHander.removeCallbacks(stopScanRunnable);
         mBleManger.setBleState(BleManger.State.IDLE);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Logger.d(TAG, "onPause: ");
+        stopScan();
     }
 }

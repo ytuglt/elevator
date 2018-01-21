@@ -49,6 +49,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.shaoxia.elevator.bluetoothle.BLEProfileDataParserClasses.BloodPressureParser;
 import com.shaoxia.elevator.bluetoothle.BLEProfileDataParserClasses.CSCParser;
@@ -64,6 +65,7 @@ import com.shaoxia.elevator.bluetoothle.utils.Constants;
 import com.shaoxia.elevator.bluetoothle.utils.GattAttributes;
 import com.shaoxia.elevator.bluetoothle.utils.UUIDDatabase;
 import com.shaoxia.elevator.bluetoothle.utils.Utils;
+import com.shaoxia.elevator.log.Logger;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -76,7 +78,7 @@ import java.util.UUID;
  * hosted on a given BlueTooth LE device.
  */
 public class BluetoothLeService extends Service {
-
+    private static final String TAG = "BluetoothLeService";
     /**
      * GATT Status constants
      */
@@ -747,12 +749,14 @@ public class BluetoothLeService extends Service {
     public static void connect(final String address, final String devicename, Context context) {
         mContext = context;
         if (mBluetoothAdapter == null || address == null) {
+            Logger.e(TAG, "connect: mBluetoothAdapter or address is null");
             return;
         }
 
         BluetoothDevice device = mBluetoothAdapter
                 .getRemoteDevice(address);
         if (device == null) {
+            Log.e(TAG, "connect: device is null");
             return;
         }
         // We want to directly connect to the device, so we are setting the
@@ -990,6 +994,7 @@ public class BluetoothLeService extends Service {
      */
     public boolean initialize() {
         System.out.println("BLEService----------------->initialize");
+        Logger.d(TAG, "initialize: ");
         // For API level 18 and above, get a reference to BluetoothAdapter
         // through
         // BluetoothManager.
@@ -1019,6 +1024,7 @@ public class BluetoothLeService extends Service {
 
     @Override
     public void onCreate() {
+        Logger.d(TAG, "onCreate: ");
         // Initializing the service
         if (!initialize()) {
             System.out.println("Service not initialized");
