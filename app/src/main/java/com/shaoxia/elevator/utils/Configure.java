@@ -6,4 +6,5 @@ package com.shaoxia.elevator.utils;
 
 public class Configure {
     public static int DEFAULT_SCAN_TIME = 10000;
+    public static int DEFAULT_CONNECT_TIME = 5000;
 }

@@ -7,15 +7,29 @@
 
     <include layout="@layout/layout_action_bar" />
 
-    <TextView
-        android:id="@+id/text_floor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="76dp"
         android:layout_marginTop="30dp"
-        android:text="1"
-        android:textColor="@color/title_color"
-        android:textSize="76dp" />
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/text_floor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="请输入1-127的楼层"
+            android:inputType="number" />
+
+        <Button
+            android:id="@+id/sel_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_bg"
+            android:text="确定"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/elevator_id"

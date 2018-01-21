@@ -25,6 +25,8 @@ public class OutCallActivity extends BaseBleComActivity implements View.OnClickL
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        byte[] query = {(byte) 0xb5, 0x00, (byte) 0xb5};
+        setQueryData(query);
         setContentView(R.layout.activity_out_call);
         TextView titleView = findViewById(R.id.title);
         titleView.setText(R.string.call_title);
@@ -90,11 +92,6 @@ public class OutCallActivity extends BaseBleComActivity implements View.OnClickL
     }
 
     @Override
-    protected void sendQueryData() {
-        super.sendQueryData();
-    }
-
-    @Override
     public void onClick(View view) {
         byte[] cmd = new byte[3];
         cmd[0] = (byte) 0xb5;
@@ -106,16 +103,6 @@ public class OutCallActivity extends BaseBleComActivity implements View.OnClickL
                 break;
             case R.id.down_check:
                 cmd[1] = 0x02;
-                cmd[2] = (byte) (cmd[0] + cmd[1]);
-                sendData(cmd);
-                break;
-            case R.id.fire_control:
-                cmd[1] = 0x04;
-                cmd[2] = (byte) (cmd[0] + cmd[1]);
-                sendData(cmd);
-                break;
-            case R.id.elevator_lock:
-                cmd[1] = 0x08;
                 cmd[2] = (byte) (cmd[0] + cmd[1]);
                 sendData(cmd);
                 break;
