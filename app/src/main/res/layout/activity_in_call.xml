@@ -1,6 +1,196 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-</android.support.constraint.ConstraintLayout>
+    <include layout="@layout/layout_action_bar" />
+
+    <TextView
+        android:id="@+id/text_floor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:text="1"
+        android:textColor="@color/title_color"
+        android:textSize="76dp" />
+
+    <TextView
+        android:id="@+id/elevator_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="36dp"
+        android:text="电梯001"
+        android:textColor="#484747"
+        android:textSize="16dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
+
+            <com.shaoxia.elevator.widget.DrawableTextView
+                android:id="@+id/stop_service"
+                style="@style/InIconSmall"
+                android:drawablePadding="@dimen/in_icon_small_padding"
+                android:gravity="center_horizontal"
+                android:text="停止服务"
+                android:textColor="@color/selector_icon_title"
+                android:textSize="12dp"
+                app:drawable_height="36dp"
+                app:drawable_width="36dp"
+                app:top_drawable="@drawable/stop_service" />
+
+            <com.shaoxia.elevator.widget.DrawableTextView
+                android:id="@+id/over_weight"
+                style="@style/InIconSmall"
+                android:layout_marginTop="@dimen/in_call_icon_small_top_margin"
+                android:drawablePadding="@dimen/in_icon_small_padding"
+                android:gravity="center_horizontal"
+                android:text="超重"
+                android:textColor="@color/selector_icon_title"
+                android:textSize="12dp"
+                app:drawable_height="36dp"
+                app:drawable_width="36dp"
+                app:top_drawable="@drawable/chaozhogn" />
+
+            <com.shaoxia.elevator.widget.DrawableTextView
+                android:id="@+id/priority"
+                style="@style/InIconSmall"
+                android:layout_marginTop="@dimen/in_call_icon_small_top_margin"
+                android:drawablePadding="@dimen/in_icon_small_padding"
+                android:gravity="center_horizontal"
+                android:text="优先"
+                android:textColor="@color/selector_icon_title"
+                android:textSize="12dp"
+                app:drawable_height="36dp"
+                app:drawable_width="36dp"
+                app:top_drawable="@drawable/youxian" />
+
+            <com.shaoxia.elevator.widget.DrawableTextView
+                android:id="@+id/error"
+                style="@style/InIconSmall"
+                android:layout_marginTop="@dimen/in_call_icon_small_top_margin"
+                android:drawablePadding="@dimen/in_icon_small_padding"
+                android:gravity="center_horizontal"
+                android:text="故障"
+                android:textColor="@color/selector_icon_title"
+                android:textSize="12dp"
+                app:drawable_height="36dp"
+                app:drawable_width="36dp"
+                app:top_drawable="@drawable/error" />
+
+            <com.shaoxia.elevator.widget.DrawableTextView
+                android:id="@+id/check"
+                style="@style/InIconSmall"
+                android:layout_marginTop="@dimen/in_call_icon_small_top_margin"
+                android:drawablePadding="@dimen/in_icon_small_padding"
+                android:gravity="center_horizontal"
+                android:text="检修"
+                android:textColor="@color/selector_icon_title"
+                android:textSize="12dp"
+                app:drawable_height="36dp"
+                app:drawable_width="36dp"
+                app:top_drawable="@drawable/jianxiu" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
+
+            <com.shaoxia.elevator.widget.DrawableTextView
+                android:id="@+id/close"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/close" />
+
+            <com.shaoxia.elevator.widget.DrawableTextView
+                android:id="@+id/open"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="22dp"
+                android:background="@drawable/open" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="16dp"
+            android:orientation="vertical">
+
+            <com.shaoxia.elevator.widget.DrawableTextView
+                android:id="@+id/fire_control"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="@dimen/in_icon_small_padding"
+                android:gravity="center_horizontal"
+                android:text="消防"
+                android:textColor="@color/selector_icon_title"
+                android:textSize="12dp"
+                app:drawable_height="36dp"
+                app:drawable_width="36dp"
+                app:top_drawable="@drawable/xiaofang" />
+
+            <com.shaoxia.elevator.widget.DrawableTextView
+                android:id="@+id/earthquake"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/in_call_icon_small_top_margin"
+                android:drawablePadding="@dimen/in_icon_small_padding"
+                android:gravity="center_horizontal"
+                android:text="地震"
+                android:textColor="@color/selector_icon_title"
+                android:textSize="12dp"
+                app:drawable_height="36dp"
+                app:drawable_width="36dp"
+                app:top_drawable="@drawable/dizheng" />
+
+            <com.shaoxia.elevator.widget.DrawableTextView
+                android:id="@+id/fire"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/in_call_icon_small_top_margin"
+                android:drawablePadding="@dimen/in_icon_small_padding"
+                android:gravity="center_horizontal"
+                android:text="火灾"
+                android:textColor="@color/selector_icon_title"
+                android:textSize="12dp"
+                app:drawable_height="36dp"
+                app:drawable_width="36dp"
+                app:top_drawable="@drawable/huojing" />
+
+            <com.shaoxia.elevator.widget.DrawableTextView
+                android:id="@+id/emergency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/in_call_icon_small_top_margin"
+                android:drawablePadding="@dimen/in_icon_small_padding"
+                android:gravity="center_horizontal"
+                android:text="紧急"
+                android:textColor="@color/selector_icon_title"
+                android:textSize="12dp"
+                app:drawable_height="36dp"
+                app:drawable_width="36dp"
+                app:top_drawable="@drawable/jingji" />
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

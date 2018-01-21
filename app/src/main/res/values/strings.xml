@@ -22,4 +22,5 @@
 
     <string name="elevator">Elevator</string>
     <string name="in_elevator" >电梯内</string>
+    <string name="call_title">呼叫电梯</string>
 </resources>

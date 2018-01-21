@@ -2,20 +2,16 @@ package com.shaoxia.elevator;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.shaoxia.elevator.bluetoothle.BleHelper;
 import com.shaoxia.elevator.bluetoothle.BleManger;
-import com.shaoxia.elevator.bluetoothle.BlueToothLeService.BluetoothLeService;
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.model.MDevice;
 import com.shaoxia.elevator.utils.Configure;
@@ -50,17 +46,23 @@ public class MainActivity extends BaseActivity {
                 public void run() {
                     Logger.d(TAG, "run: device name is : " + device.getName());
                     MDevice mDev = new MDevice(device, rssi);
-                    if (mDevices.contains(mDev) || !mDev.isElevator()) {
+                    if ( !mDev.isElevator()) {
                         Logger.d(TAG, "run: devices contains devices or not elevator");
                         return;
                     }
                     Logger.d(TAG, "run: add device" + mDev.getDevice().getName());
                     if (mDev.isInCall()) {
+                        if (mInDevices.contains(mDev) ) {
+                            return;
+                        }
                         mInDevices.add(mDev);
                         if (mInDevicesAdapater != null) {
                             mInDevicesAdapater.notifyDataSetChanged();
                         }
                     } else {
+                        if (mDevices.contains(mDev) ) {
+                            return;
+                        }
                         mDevices.add(mDev);
                         if (mDevicesAdapter != null) {
                             mDevicesAdapter.notifyDataSetChanged();
@@ -122,10 +124,13 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onItemClick(View itemView, int position) {
                 Intent intent = new Intent(MainActivity.this, OutCallActivity.class);
-                String name = mDevices.get(position).getDevName();
-                String address = mDevices.get(position).getDevAddress();
+                MDevice device= mDevices.get(position);
+                String name = device.getDevName();
+                String address = device.getDevAddress();
                 intent.putExtra("dev_name",name);
                 intent.putExtra("dev_mac", address);
+                intent.putExtra("floor", device.getFloor());
+                intent.putExtra("elevator_id", device.getElevatorId());
                 Logger.d(TAG, "onItemClick: name = " + name + ",adrress = " + address);
                 startActivity(intent);
             }
@@ -144,10 +149,13 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onItemClick(View itemView, int position) {
                 Intent intent = new Intent(MainActivity.this, InCallActivity.class);
-                String name = mInDevices.get(position).getDevName();
-                String address = mInDevices.get(position).getDevAddress();
+                MDevice device= mInDevices.get(position);
+                String name = device.getDevName();
+                String address = device.getDevAddress();
                 intent.putExtra("dev_name",name);
                 intent.putExtra("dev_mac", address);
+                intent.putExtra("floor", device.getFloor());
+                intent.putExtra("elevator_id", device.getElevatorId());
                 Logger.d(TAG, "onItemClick: name = " + name + ",adrress = " + address);
                 startActivity(intent);
             }

@@ -13,6 +13,7 @@ import com.shaoxia.elevator.R;
 import com.shaoxia.elevator.bluetoothle.BlueToothLeService.BluetoothLeService;
 import com.shaoxia.elevator.bluetoothle.utils.Utils;
 import com.shaoxia.elevator.log.Logger;
+import com.shaoxia.elevator.utils.StringUtils;
 
 /**
  * Created by gonglt1 on 18-1-20.
@@ -103,6 +104,48 @@ public class BleHelper {
 
     public static String getPorperties(Context context, BluetoothGattCharacteristic item) {
         return Utils.getPorperties(context, item);
+    }
+
+    /**
+     * Preparing Broadcast receiver to broadcast notify characteristics
+     *
+     * @param characteristic
+     */
+    public static void prepareBroadcastDataNotify(
+            BluetoothGattCharacteristic characteristic) {
+        Logger.d(TAG, "prepareBroadcastDataNotify: ");
+        final int charaProp = characteristic.getProperties();
+        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+            BluetoothLeService.setCharacteristicNotification(characteristic, true);
+        }
+
+    }
+
+    public static void writeCharacteristic(BluetoothGattCharacteristic characteristic, byte[] bytes) {
+        // Writing the hexValue to the characteristics
+        Logger.d(TAG, "writeCharacteristic: ");
+        try {
+            Logger.d(TAG, "writeCharacteristic: data : " + StringUtils.ByteArraytoHex(bytes));
+            BluetoothLeService.writeCharacteristicGattDb(characteristic,
+                    bytes);
+        } catch (NullPointerException e) {
+            Logger.e(TAG, "writeCharacteristic: exception" + e);
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Stopping Broadcast receiver to broadcast notify characteristics
+     *
+     * @param characteristic
+     */
+    public static void stopBroadcastDataNotify(
+            BluetoothGattCharacteristic characteristic) {
+        Logger.d(TAG, "stopBroadcastDataNotify: ");
+        final int charaProp = characteristic.getProperties();
+        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+            BluetoothLeService.setCharacteristicNotification(characteristic, false);
+        }
     }
 
 }

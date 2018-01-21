@@ -40,8 +40,9 @@ public class MDevice {
             floor = devName.substring(4,7);
             elevatorId = devName.substring(7, 10);
             reNameElevatorId();
+            floor = "5";
             isElevator = true;
-            isInCall = false;
+            isInCall = true;
             return;
         }
         //TODO

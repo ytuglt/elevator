@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://F:\glt\jingyanzhao\elevator\elevator\Elevator.iml" filepath="F:\glt\jingyanzhao\elevator\elevator\Elevator.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://F:\glt\jingyanzhao\elevator\elevator\app\app.iml" filepath="F:\glt\jingyanzhao\elevator\elevator\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/elevator.iml" filepath="$PROJECT_DIR$/elevator.iml" />
     </modules>
   </component>
