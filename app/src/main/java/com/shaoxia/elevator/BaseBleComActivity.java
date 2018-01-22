@@ -135,9 +135,9 @@ public class BaseBleComActivity extends BaseActivity {
             Logger.d(TAG, "prepareGattServices: service uuid : " + uuid);
             if (uuid.equals(GattAttributes.GENERIC_ACCESS_SERVICE) || uuid.equals(GattAttributes.GENERIC_ATTRIBUTE_SERVICE))
                 continue;
-            String name = GattAttributes.lookup(gattService.getUuid().toString(), "UnkonwService");
-            if (name.equals("UnkonwService")) {
-                Logger.d(TAG, "unKnowService uuid = " + uuid);
+//            String name = GattAttributes.lookup(gattService.getUuid().toString(), "UnkonwService");
+            if (uuid.equals(Configure.SERVICE_UUID)) {
+                Logger.d(TAG, "Communication uuid = " + uuid);
                 List<BluetoothGattCharacteristic> characteristics = gattService.getCharacteristics();
                 for (BluetoothGattCharacteristic c : characteristics) {
                     Logger.d(TAG, "prepareGattServices: property : " + BleHelper.getPorperties(this, c));

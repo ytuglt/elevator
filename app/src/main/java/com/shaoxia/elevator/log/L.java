@@ -23,7 +23,7 @@ public class L {
 
     private static final ExecutorService SINGLE_THREAD_POLL = Executors.newSingleThreadExecutor();
 
-    private static boolean sDebug = false;
+    private static boolean sDebug = true;
 
     static {
         switch (Build.TYPE) {
