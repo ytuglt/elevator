@@ -4,6 +4,7 @@ package com.shaoxia.elevator.log;
  * Created by tustar on 16-3-23.
  */
 public class Logger extends L {
+    private boolean WRITE_FILE = true;
 
     public static void i(String tag, String... messages) {
         L.i(tag, false, messages);

@@ -35,17 +35,17 @@ public class MDevice {
         devName = device.getName();
         devAddress = device.getAddress();
 
-        //TODO TEST
-        if (devName != null && devName.startsWith("Zero")) {
-            floor = devName.substring(4,7);
-            elevatorId = devName.substring(7, 10);
-            reNameElevatorId();
-            floor = "5";
-            isElevator = true;
-            isInCall = true;
-            return;
-        }
-        //TODO
+//        //TODO TEST
+//        if (devName != null && devName.startsWith("Zero")) {
+//            floor = devName.substring(4,7);
+//            elevatorId = devName.substring(7, 10);
+//            reNameElevatorId();
+//            floor = "5";
+//            isElevator = true;
+//            isInCall = true;
+//            return;
+//        }
+//        //TODO
 
         if (devName == null || !devName.startsWith(START) || devName.length()<10) {
             isElevator = false;
