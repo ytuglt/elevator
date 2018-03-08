@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginTop="60dp"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/floor_title_background"
+            android:scaleType="fitXY"
+            android:layout_centerInParent="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="A梯1层"
+            android:textColor="#ffffff"
+            android:textSize="17dp"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="60dp"
+        android:layout_marginTop="60dp"
+        android:background="@drawable/floor_foregroud">
+
+        <com.wx.wheelview.widget.WheelView
+            android:id="@+id/floor_wheel"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content" />
+
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@drawable/button_background"
+        android:gravity="center"
+        android:text="Call"
+        android:textColor="@color/call_unenable"
+        android:textSize="32dp" />
+
+</LinearLayout>

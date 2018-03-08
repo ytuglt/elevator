@@ -8,4 +8,10 @@
 
     <color name="transparant">#00000000</color>
     <color name="gray">#c9c9c9</color>
+
+    <color name="floor_unsel">#A9B5CB</color>
+    <color name="floor_sel">#FFFFFE</color>
+
+
+    <color name="call_unenable">#b9b7b8</color>
 </resources>

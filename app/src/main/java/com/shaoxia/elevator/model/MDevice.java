@@ -25,6 +25,10 @@ public class MDevice {
     private boolean isInCall;
     private boolean isElevator;
 
+    public MDevice() {
+
+    }
+
     public MDevice(BluetoothDevice device, int rssi) {
         this.device = device;
         this.rssi = rssi;
@@ -47,13 +51,13 @@ public class MDevice {
 //        }
 //        //TODO
 
-        if (devName == null || !devName.startsWith(START) || devName.length()<10) {
+        if (devName == null || !devName.startsWith(START) || devName.length() < 10) {
             isElevator = false;
             return;
         }
 
-        floor = devName.substring(4, 7);
-        elevatorId = devName.substring(7, 10);
+        floor = devName.substring(7, 10);
+        elevatorId = devName.substring(4, 7);
         if (INCALLID.equals(elevatorId)) {
             isInCall = true;
             floor = MyApplication.getInstance().getResources().getString(R.string.in_elevator);
