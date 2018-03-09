@@ -28,7 +28,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".SplashActivity">
+        <activity android:name=".CallOutActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
