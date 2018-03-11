@@ -5,7 +5,7 @@ package com.shaoxia.elevator.utils;
  */
 
 public class VerifyUtils {
-    public byte getCheckNum(byte[] bytes) {
+    public static byte getCheckNum(byte[] bytes) {
         byte checkSum = 0;
         for (int i = 0; i < bytes.length - 1; i++) {
             checkSum += bytes[i];

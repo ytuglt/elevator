@@ -4,8 +4,8 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -21,7 +21,8 @@ import java.util.List;
  * Created by gonglt1 on 18-3-8.
  */
 
-public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemSelectedListener<String> {
+public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemSelectedListener<String>,
+        View.OnClickListener {
     private static final String TAG = "ElevatorView";
     private MDevice mDevice;
     private WheelView mFloolWheelView;
@@ -30,6 +31,8 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
     private TextView mBtnCall;
 
     private boolean mEnableCall;
+
+    private List<String> mFloors;
 
     public ElevatorView(Context context, MDevice device) {
         super(context);
@@ -47,11 +50,18 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
     }
 
     private void init() {
-        Log.d(TAG, "init: ");
+        Logger.d(TAG, "init: ");
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.view_elevator, this, true);
         mBtnCall = findViewById(R.id.btn_call);
+        mBtnCall.setOnClickListener(this);
+        TextView title = findViewById(R.id.elevator_title);
+        String text = mDevice.getElevatorId()
+                + getContext().getResources().getString(R.string.elevator_id_unit)
+                + mDevice.getFloor()
+                + getContext().getResources().getString(R.string.floor_unit);
+        title.setText(text);
         initWheelView();
     }
 
@@ -62,7 +72,7 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
         mWheelAdapter = new ArrayWheelAdapter(getContext());
         mFloolWheelView.setWheelAdapter(mWheelAdapter);
         mFloolWheelView.setSkin(WheelView.Skin.None);
-        initWheelData();
+        updateWheelData();
         WheelView.WheelViewStyle style = new WheelView.WheelViewStyle();
         style.backgroundColor = Color.TRANSPARENT;
         style.textColor = getContext().getResources().getColor(R.color.floor_unsel, null);
@@ -73,17 +83,23 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
         mFloolWheelView.setOnWheelItemSelectedListener(this);
     }
 
-    private void initWheelData() {
+    public void updateWheelData() {
         Logger.d(TAG, "initWheelData: ");
-        List<String> floors = mDevice.getFloors();
-        if (floors != null && floors.size() > 0) {
+        mFloors = mDevice.getFloors();
+        if (mFloors != null && mFloors.size() > 0) {
             Logger.d(TAG, "initWheelData: real wheel data");
-            mFloolWheelView.setWheelData(floors);
-            mFloolWheelView.setSelection(floors.indexOf(mDevice.getFloor()));
+            mFloolWheelView.setWheelData(mFloors);
+            int index = mFloors.indexOf(mDevice.getFloor());
+            if (index < 0) {
+                index = 0;
+            }
+            mFloolWheelView.setSelection(index);
+            mWheelAdapter.notifyDataSetChanged();
             mEnableCall = true;
         } else {
             Logger.d(TAG, "initWheelData: init wheel data");
-            mFloolWheelView.setWheelData(createArrays());
+            mFloors = createArrays();
+            mFloolWheelView.setWheelData(mFloors);
             mFloolWheelView.setSelection(2);
             mEnableCall = false;
         }
@@ -92,7 +108,7 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
     private List<String> createArrays() {
         Logger.d(TAG, "createArrays: ");
         ArrayList<String> list = new ArrayList<String>();
-        for (int i = 3; i >= -2; i--) {
+        for (int i = 20; i >= -2; i--) {
             if (i == 0) {
                 continue;
             }
@@ -104,7 +120,11 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
     @Override
     public void onItemSelected(int position, String s) {
         Logger.d(TAG, "onItemSelected: position = " + position + ";s = " + s);
-        updateCallView(!s.equals(mDevice.getFloor()));
+        if (mFloors.contains(mDevice.getFloor())) {
+            updateCallView(!s.equals(mDevice.getFloor()));
+        } else {
+            updateCallView(false);
+        }
     }
 
     private void updateCallView(boolean enable) {
@@ -112,12 +132,37 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
         mBtnCall.setEnabled(enable && mEnableCall);
     }
 
+    private void updateCallView() {
+        boolean enable = false;
+        if (mFloolWheelView != null && mFloors != null && mDevice != null) {
+            int selection = mFloolWheelView.getSelection();
+            int foorIndex = mFloors.indexOf(mDevice.getFloor());
+            enable = (selection == foorIndex);
+        }
+        Logger.d(TAG, "updateCallView no param: enable = " + enable + ";mEnableCall " + mEnableCall);
+        enable = (enable && mEnableCall);
+        Logger.d(TAG, "updateCallView: enable " + enable);
+        mBtnCall.setEnabled(enable);
+    }
+
     public void setState(MDevice.State state) {
+        Logger.d(TAG, "setState: state " + state);
         switch (state) {
             case IDLE:
-
+                mBtnCall.setText(getContext().getResources().getString(R.string.call));
+                updateCallView();
                 break;
             case COMUNICATING:
+                mBtnCall.setText(getContext().getResources().getString(R.string.comunicating));
+                updateCallView(false);
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_call:
                 break;
         }
     }

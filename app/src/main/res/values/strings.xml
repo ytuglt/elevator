@@ -27,4 +27,7 @@
     <string name="comunicating">Communicating...</string>
     <string name="call">Call</string>
 
+    <string name="elevator_id_unit">梯</string>
+    <string name="floor_unit">层</string>
+
 </resources>

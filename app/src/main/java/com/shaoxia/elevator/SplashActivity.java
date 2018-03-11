@@ -13,7 +13,9 @@ import com.shaoxia.elevator.bluetoothle.BleComManager;
 import com.shaoxia.elevator.bluetoothle.BleScanManager;
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.model.MDevice;
+import com.shaoxia.elevator.utils.CoderUtils;
 import com.shaoxia.elevator.utils.StringUtils;
+import com.shaoxia.elevator.utils.VerifyUtils;
 import com.shaoxia.elevator.widget.ExtendViewPager;
 
 import java.util.ArrayList;
@@ -83,7 +85,6 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
             }
 
             @Override
@@ -93,7 +94,6 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
 
             @Override
             public void onPageScrollStateChanged(int state) {
-
             }
         });
 
@@ -183,7 +183,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         }
 
         ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
-
+        elevatorView.setState(MDevice.State.COMUNICATING);
     }
 
     @Override
@@ -194,6 +194,9 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     @Override
     public void onBleDisconnected() {
         Logger.d(TAG, "onBleDisconnected: ");
+        ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
+        elevatorView.setState(MDevice.State.IDLE);
+
         if (mViewPager != null) {
             mViewPager.setPagingEnabled(true);
         }
@@ -203,6 +206,57 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     @Override
     public void onReceiveData(byte[] array) {
         Logger.d(TAG, "onReceiveData: data:" + StringUtils.ByteArraytoHex(array));
+        mBleComManager.disconnect();
+        if (!checkData(array)) {
+            Log.d(TAG, "onReceiveData: checkdata errror");
+            return;
+        }
+        parseData(array);
+
+    }
+
+    private void parseData(byte[] array) {
+        Logger.d(TAG, "parseData: ");
+        List<String> floors = new ArrayList<>();
+        byte[] tmp = new byte[3];
+        for (int i = 2; i < array[1]; i += 4) {
+            tmp[0] = array[i + 1];
+            tmp[1] = array[i + 2];
+            tmp[2] = array[i + 3];
+            String floor = CoderUtils.asciiToString(tmp).trim();
+            Log.d(TAG, "parseData: floor:" + floor);
+            floors.add(floor);
+        }
+        Logger.d(TAG, "parseData: floors size " + floors.size());
+        mDevices.get(mCurPosition).setFloors(floors);
+        ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
+        elevatorView.updateWheelData();
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private boolean checkData(byte[] array) {
+        if (array == null && array.length < 3) {
+            Logger.e(TAG, "onReceiveData: return data null or to short error");
+            return false;
+        }
+
+        if (array[0] != (byte) 0xEC) {
+            Logger.e(TAG, "onReceiveData: return data head error");
+            return false;
+        }
+
+        if ((array.length - 3) != array[1]) {
+            Logger.e(TAG, "onReceiveData: return data length error");
+            return false;
+        }
+
+        byte sum = VerifyUtils.getCheckNum(array);
+        if (sum != array[array.length - 1]) {
+            Logger.e(TAG, "onReceiveData: checksum error");
+            return false;
+        }
+
+        return true;
     }
 
     private void onPageChanged(int position) {

@@ -142,6 +142,9 @@ public class BleHelper {
     public static void stopBroadcastDataNotify(
             BluetoothGattCharacteristic characteristic) {
         Logger.d(TAG, "stopBroadcastDataNotify: ");
+        if (characteristic == null) {
+            return;
+        }
         final int charaProp = characteristic.getProperties();
         if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
             BluetoothLeService.setCharacteristicNotification(characteristic, false);
