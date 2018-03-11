@@ -1,25 +1,27 @@
 package com.shaoxia.elevator.model;
 
 import android.bluetooth.BluetoothDevice;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.shaoxia.elevator.MyApplication;
 import com.shaoxia.elevator.R;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by gonglt1 on 18-1-20.
  */
 
-public class MDevice {
-    public enum State {
-        IDLE, COMUNICATING
-    }
+public class MDevice implements Serializable{
+    public final static int IDLE = 0;
+    public final static int COMUNICATING = 1;
 
     public static final String START = "WELM";
     public static final String INCALLID = "COP";
 
-    private BluetoothDevice device;
+//    private BluetoothDevice device;
     private int rssi;
 
     private String floor;
@@ -38,12 +40,11 @@ public class MDevice {
     }
 
     public MDevice(BluetoothDevice device, int rssi) {
-        this.device = device;
         this.rssi = rssi;
-        parseName();
+        parseName(device);
     }
 
-    private void parseName() {
+    private void parseName(BluetoothDevice device) {
         devName = device.getName();
         devAddress = device.getAddress();
 
@@ -87,14 +88,6 @@ public class MDevice {
 
     public boolean isInCall() {
         return isInCall;
-    }
-
-    public BluetoothDevice getDevice() {
-        return device;
-    }
-
-    public void setDevice(BluetoothDevice device) {
-        this.device = device;
     }
 
     public int getRssi() {
@@ -148,10 +141,9 @@ public class MDevice {
     @Override
     public boolean equals(Object o) {
         if (o instanceof MDevice) {
-            return device.equals(((MDevice) o).getDevice());
+            return getDevAddress().equals(((MDevice) o).getDevAddress());
         }
         return false;
     }
-
 
 }

@@ -36,14 +36,20 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MainActivity">
-        </activity>
+        <activity android:name=".MainActivity"></activity>
 
         <activity
             android:name=".InCallActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".OutCallActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".CallOutActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ArrivalActivity"
             android:screenOrientation="portrait" />
 
         <service

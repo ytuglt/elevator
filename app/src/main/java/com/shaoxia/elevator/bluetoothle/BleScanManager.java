@@ -89,7 +89,9 @@ public class BleScanManager {
      */
     public void stopScan() {
         Logger.d(TAG, "stopScan: ");
-        mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        if (mBluetoothAdapter != null) {
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        }
         mHandler.removeCallbacks(stopScanRunnable);
         mBleManger.setBleState(BleManger.State.IDLE);
     }

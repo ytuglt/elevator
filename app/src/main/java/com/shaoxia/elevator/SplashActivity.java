@@ -55,7 +55,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
                         Logger.d(TAG, "run: device is not elevator");
                         return;
                     }
-                    Logger.d(TAG, "run: add device" + mDev.getDevice().getName());
+                    Logger.d(TAG, "run: add device" + mDev.getDevName());
 
                     //TODO
                     if (mDevices.contains(mDev)) {
@@ -162,6 +162,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     }
 
     private void getFloorInfo(int position) {
+        Logger.d(TAG, "getFloorInfo: ");
         if (position >= mDevices.size() || position < 0) {
             Logger.e(TAG, "getFloorInfo: position is illegal");
             return;
@@ -178,12 +179,13 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
 
     @Override
     public void onCommunicating() {
+        Logger.d(TAG, "onCommunicating: ");
         if (mViewPager != null) {
             mViewPager.setPagingEnabled(false);
         }
 
         ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
-        elevatorView.setState(MDevice.State.COMUNICATING);
+        elevatorView.setState(MDevice.COMUNICATING);
     }
 
     @Override
@@ -195,7 +197,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     public void onBleDisconnected() {
         Logger.d(TAG, "onBleDisconnected: ");
         ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
-        elevatorView.setState(MDevice.State.IDLE);
+        elevatorView.setState(MDevice.IDLE);
 
         if (mViewPager != null) {
             mViewPager.setPagingEnabled(true);

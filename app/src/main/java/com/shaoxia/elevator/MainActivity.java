@@ -50,7 +50,7 @@ public class MainActivity extends BaseActivity {
                         Logger.d(TAG, "run: devices contains devices or not elevator");
                         return;
                     }
-                    Logger.d(TAG, "run: add device" + mDev.getDevice().getName());
+                    Logger.d(TAG, "run: add device" + mDev.getDevName());
                     if (mDev.isInCall()) {
                         if (mInDevices.contains(mDev) ) {
                             return;

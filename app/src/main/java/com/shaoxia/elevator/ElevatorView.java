@@ -1,7 +1,9 @@
 package com.shaoxia.elevator;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -34,6 +36,8 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
 
     private List<String> mFloors;
 
+    private TextView mTitle;
+
     public ElevatorView(Context context, MDevice device) {
         super(context);
         mDevice = device;
@@ -56,12 +60,12 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
         inflater.inflate(R.layout.view_elevator, this, true);
         mBtnCall = findViewById(R.id.btn_call);
         mBtnCall.setOnClickListener(this);
-        TextView title = findViewById(R.id.elevator_title);
+        mTitle = findViewById(R.id.elevator_title);
         String text = mDevice.getElevatorId()
                 + getContext().getResources().getString(R.string.elevator_id_unit)
                 + mDevice.getFloor()
                 + getContext().getResources().getString(R.string.floor_unit);
-        title.setText(text);
+        mTitle.setText(text);
         initWheelView();
     }
 
@@ -145,14 +149,14 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
         mBtnCall.setEnabled(enable);
     }
 
-    public void setState(MDevice.State state) {
+    public void setState(int state) {
         Logger.d(TAG, "setState: state " + state);
         switch (state) {
-            case IDLE:
+            case MDevice.IDLE:
                 mBtnCall.setText(getContext().getResources().getString(R.string.call));
                 updateCallView();
                 break;
-            case COMUNICATING:
+            case MDevice.COMUNICATING:
                 mBtnCall.setText(getContext().getResources().getString(R.string.comunicating));
                 updateCallView(false);
                 break;
@@ -163,6 +167,14 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_call:
+                Intent intent = new Intent(getContext(), CallOutActivity.class);
+                Bundle bundle=new Bundle();
+                bundle.putSerializable("device", mDevice);//序列化
+                intent.putExtras(bundle);//发送数据
+//                intent.putExtra("device", mDevice);
+                intent.putExtra("title", mTitle.getText());
+                intent.putExtra("despos", mFloolWheelView.getSelection());
+                getContext().startActivity(intent);
                 break;
         }
     }

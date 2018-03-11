@@ -2,16 +2,108 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ffffff">
+    android:background="@drawable/background"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginTop="60dp"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/floor_title_background" />
+
+        <TextView
+            android:id="@+id/elevator_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="A梯1层"
+            android:textColor="#ffffff"
+            android:textSize="17dp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="60dp"
+        android:layout_marginTop="60dp"
+        android:paddingLeft="100dp"
+        android:paddingRight="100dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/floor_one"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/floor_back"
+                android:gravity="center"
+                android:text="035"
+                android:textColor="#b3c2d5" />
+
+            <TextView
+                android:id="@+id/floor_two"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/floor_back"
+                android:gravity="center"
+                android:text="035"
+                android:textColor="#b3c2d5" />
+
+            <TextView
+                android:id="@+id/floor_three"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/floor_back"
+                android:gravity="center"
+                android:text="035"
+                android:textColor="#b3c2d5" />
+
+
+            <TextView
+                android:id="@+id/floor_four"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/floor_back"
+                android:gravity="center"
+                android:text="035"
+                android:textColor="#b3c2d5" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/img_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/up_anim" />
+
+    </RelativeLayout>
+
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="sdkafjasdkljfasdkljfklasdjfasdo" />
+        android:id="@+id/btn_call"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@drawable/button_background"
+        android:gravity="center"
+        android:text="Waiting..."
+        android:textColor="@color/btn_call_color"
+        android:textSize="32dp" />
 
-    <ImageView
-        android:id="@+id/img_up"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/up_anim"/>
 </LinearLayout>
