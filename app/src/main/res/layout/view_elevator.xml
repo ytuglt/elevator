@@ -14,17 +14,17 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/floor_title_background"
+            android:layout_centerInParent="true"
             android:scaleType="fitXY"
-            android:layout_centerInParent="true"/>
+            android:src="@drawable/floor_title_background" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:text="A梯1层"
             android:textColor="#ffffff"
-            android:textSize="17dp"
-            android:layout_centerInParent="true"/>
+            android:textSize="17dp" />
     </RelativeLayout>
 
     <FrameLayout
@@ -43,12 +43,13 @@
     </FrameLayout>
 
     <TextView
+        android:id="@+id/btn_call"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:background="@drawable/button_background"
         android:gravity="center"
         android:text="Call"
-        android:textColor="@color/call_unenable"
+        android:textColor="@color/btn_call_color"
         android:textSize="32dp" />
 
 </LinearLayout>

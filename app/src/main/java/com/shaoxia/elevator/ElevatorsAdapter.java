@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.model.MDevice;
 
 import java.util.ArrayList;
@@ -28,14 +29,28 @@ public class ElevatorsAdapter extends PagerAdapter {
     public ElevatorsAdapter(Context context, List<MDevice> devices) {
         mDevices = devices;
         mContext = context;
-        for (int i = 0; i < devices.size(); i++) {
-            mViews.add(new ElevatorView(mContext, devices.get(i)));
+        Logger.d(TAG, "ElevatorsAdapter: mDevices size " + mDevices.size());
+        for (int i = 0; i < mDevices.size(); i++) {
+            mViews.add(new ElevatorView(mContext, mDevices.get(i)));
         }
+    }
+
+    public void updateList() {
+        Logger.d(TAG, "updateList: deviceList size " + mDevices.size());
+        mViews.clear();
+        for (int i = 0; i < mDevices.size(); i++) {
+            mViews.add(new ElevatorView(mContext, mDevices.get(i)));
+        }
+        notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
         return mDevices == null ? 0 : mDevices.size();
+    }
+
+    public ElevatorView getItem(int position) {
+        return mViews.get(position);
     }
 
     @Override

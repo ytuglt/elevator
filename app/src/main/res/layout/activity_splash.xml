@@ -7,12 +7,12 @@
         android:id="@+id/splash"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/splash"
-        android:visibility="gone"/>
+        android:background="@drawable/splash" />
 
     <com.shaoxia.elevator.widget.ExtendViewPager
         android:id="@+id/elevator_viewpager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
 
 </FrameLayout>

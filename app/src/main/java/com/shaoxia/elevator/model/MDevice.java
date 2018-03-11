@@ -5,11 +5,17 @@ import android.bluetooth.BluetoothDevice;
 import com.shaoxia.elevator.MyApplication;
 import com.shaoxia.elevator.R;
 
+import java.util.List;
+
 /**
  * Created by gonglt1 on 18-1-20.
  */
 
 public class MDevice {
+    public enum State {
+        IDLE, COMUNICATING
+    }
+
     public static final String START = "WELM";
     public static final String INCALLID = "COP";
 
@@ -25,6 +31,8 @@ public class MDevice {
     private boolean isInCall;
     private boolean isElevator;
 
+    private List<String> mFloors;
+
     public MDevice() {
 
     }
@@ -39,17 +47,17 @@ public class MDevice {
         devName = device.getName();
         devAddress = device.getAddress();
 
-//        //TODO TEST
-//        if (devName != null && devName.startsWith("Zero")) {
-//            floor = devName.substring(4,7);
-//            elevatorId = devName.substring(7, 10);
-//            reNameElevatorId();
-//            floor = "5";
-//            isElevator = true;
-//            isInCall = true;
-//            return;
-//        }
-//        //TODO
+        //TODO TEST
+        if (devName != null && devName.startsWith("Zero")) {
+            floor = devName.substring(4, 7);
+            elevatorId = devName.substring(7, 10);
+            reNameElevatorId();
+            floor = "5";
+            isElevator = true;
+            isInCall = true;
+            return;
+        }
+        //TODO
 
         if (devName == null || !devName.startsWith(START) || devName.length() < 10) {
             isElevator = false;
@@ -126,6 +134,14 @@ public class MDevice {
 
     public String getDevName() {
         return devName;
+    }
+
+    public List<String> getFloors() {
+        return mFloors;
+    }
+
+    public void setFloors(List<String> mFloors) {
+        this.mFloors = mFloors;
     }
 
     @Override
