@@ -37,9 +37,7 @@ public class CallOutActivity extends BaseActivity implements BleComManager.OnCom
     private Handler mHandler;
 
     private boolean mIsComunicating;
-
     private int mDesPos;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,7 +55,6 @@ public class CallOutActivity extends BaseActivity implements BleComManager.OnCom
         initFloosView();
         updateFloors();
 
-
         mBleComManager = BleComManager.getInstance(this);
         mBleComManager.setOnComListener(this);
         mHandler = new Handler();
@@ -68,7 +65,6 @@ public class CallOutActivity extends BaseActivity implements BleComManager.OnCom
     private void getUpOrDown() {
         mDevice = (MDevice) getIntent().getSerializableExtra("device");
         mDesPos = getIntent().getIntExtra("despos", -1);
-
 
         if (mDevice == null) {
             Log.e(TAG, "getUpOrDown: mDevice is null");
@@ -81,6 +77,7 @@ public class CallOutActivity extends BaseActivity implements BleComManager.OnCom
         }
         int curpos = floors.indexOf(mDevice.getFloor());
         mIsUp = (mDesPos < curpos);
+        Logger.d(TAG, "getUpOrDown: mIsUp = " + mIsUp);
     }
 
     private void updateAnimView() {

@@ -12,4 +12,8 @@ public class CoderUtils {
         }
         return sbu.toString();
     }
+
+    public static String asciiToString(byte value) {
+        return String.valueOf((char) value);
+    }
 }

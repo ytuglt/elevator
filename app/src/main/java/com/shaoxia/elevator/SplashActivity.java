@@ -19,6 +19,7 @@ import com.shaoxia.elevator.utils.VerifyUtils;
 import com.shaoxia.elevator.widget.ExtendViewPager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -100,7 +101,6 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         mBleScanManager = BleScanManager.getInstance(this);
         mBleScanManager.setOnStopScanListener(this);
         mBleScanManager.setLeScanCallback(mLeScanCallback);
-        mBleScanManager.startScan();
 
         mBleComManager = BleComManager.getInstance(this);
         mBleComManager.setOnComListener(this);
@@ -110,6 +110,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     protected void onResume() {
         super.onResume();
         Logger.d(TAG, "onResume: ");
+        mBleScanManager.startScan();
     }
 
     @Override
@@ -118,6 +119,10 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         Logger.d(TAG, "onPause: ");
         if (mBleScanManager != null) {
             mBleScanManager.stopScan();
+        }
+
+        if (mBleComManager != null) {
+            mBleComManager.disconnect();
         }
     }
 
@@ -196,6 +201,10 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     @Override
     public void onBleDisconnected() {
         Logger.d(TAG, "onBleDisconnected: ");
+        mReceiveData = null;
+        mDataLenth = 0;
+        mHasReceivelength = 0;
+
         ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
         elevatorView.setState(MDevice.IDLE);
 
@@ -205,23 +214,45 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         Toast.makeText(this, "断开连接", Toast.LENGTH_SHORT).show();
     }
 
+    private byte[] mReceiveData;
+    private int mDataLenth;
+    private int mHasReceivelength;
+
     @Override
     public void onReceiveData(byte[] array) {
         Logger.d(TAG, "onReceiveData: data:" + StringUtils.ByteArraytoHex(array));
-        mBleComManager.disconnect();
-        if (!checkData(array)) {
-            Log.d(TAG, "onReceiveData: checkdata errror");
+
+        if (array == null && array.length < 2) {
+            Logger.e(TAG, "onReceiveData: return data null or to short error");
             return;
         }
-        parseData(array);
 
+        if (array[0] == (byte) 0xEC) {
+            Logger.e(TAG, "onReceiveData: return data head error");
+            mDataLenth = array[1] + 3;
+            mReceiveData = new byte[mDataLenth];
+        }
+
+        System.arraycopy(array, 0, mReceiveData, mHasReceivelength, array.length);
+        mHasReceivelength += array.length;
+
+        if (mDataLenth == mHasReceivelength) {
+            mBleComManager.disconnect();
+            if (!checkData(mReceiveData)) {
+                Log.d(TAG, "onReceiveData: checkdata errror");
+                return;
+            }
+            parseData(mReceiveData);
+        }
     }
 
     private void parseData(byte[] array) {
         Logger.d(TAG, "parseData: ");
         List<String> floors = new ArrayList<>();
+        List<Byte> reals = new ArrayList<>();
         byte[] tmp = new byte[3];
         for (int i = 2; i < array[1]; i += 4) {
+            reals.add(array[i]);
             tmp[0] = array[i + 1];
             tmp[1] = array[i + 2];
             tmp[2] = array[i + 3];
@@ -229,6 +260,14 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             Log.d(TAG, "parseData: floor:" + floor);
             floors.add(floor);
         }
+
+        if (reals.size() >= 2) {
+            if (reals.get(1) > reals.get(0)) {
+                Logger.d(TAG, "parseData: reverse floors");
+                Collections.reverse(floors);
+            }
+        }
+
         Logger.d(TAG, "parseData: floors size " + floors.size());
         mDevices.get(mCurPosition).setFloors(floors);
         ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
@@ -253,6 +292,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         }
 
         byte sum = VerifyUtils.getCheckNum(array);
+        Logger.d(TAG, "checkData: sum is : " + StringUtils.ByteArraytoHex(new byte[]{sum}));
         if (sum != array[array.length - 1]) {
             Logger.e(TAG, "onReceiveData: checksum error");
             return false;
