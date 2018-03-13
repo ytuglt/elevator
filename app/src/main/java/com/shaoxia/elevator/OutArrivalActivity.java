@@ -2,23 +2,26 @@ package com.shaoxia.elevator;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.shaoxia.elevator.bluetoothle.BleScanManager;
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.model.MDevice;
 
 /**
- * Created by gonglt1 on 18-3-11.
+ * Created by gonglt1 on 18-3-13.
  */
 
-public class ArrivalActivity extends BaseActivity implements BleScanManager.OnStopScanListener {
-    private static final String TAG = "ArrivalActivity";
+public class OutArrivalActivity extends BaseArrivalActivity implements BleScanManager.OnStopScanListener {
+    private static final String TAG = "OutArrivalActivity";
+    private static final int SCANTIME = 30000;
+
     private BleScanManager mBleScanManager;
-    private int mDesPos;
+
+    private MDevice mCopDevice;
 
     /**
      * 发现设备时 处理方法
@@ -38,16 +41,11 @@ public class ArrivalActivity extends BaseActivity implements BleScanManager.OnSt
                     }
                     Logger.d(TAG, "run: add device" + mDev.getDevName());
 
-                    //TODO
-//                    if (mDevices.contains(mDev)) {
-//                        return;
-//                    }
-//                    if (mDev.getDevName() == null) {
-//                        return;
-//                    }
-//                    //TODO
-//                    mDevices.add(mDev);
-//                    updateAdapter();
+                    if (mDev.isInCall()) {
+                        mCopDevice = mDev;
+                        mBleScanManager.stopScan();
+                        onFindCopDevice();
+                    }
                 }
             });
         }
@@ -56,35 +54,13 @@ public class ArrivalActivity extends BaseActivity implements BleScanManager.OnSt
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Logger.d(TAG, "onCreate: ");
-        setContentView(R.layout.activity_arrival);
-
-        initTitleView();
-
-        updateFloorsView();
-
         mBleScanManager = BleScanManager.getInstance(this);
         mBleScanManager.setOnStopScanListener(this);
         mBleScanManager.setLeScanCallback(mLeScanCallback);
-        mBleScanManager.startScan();
+        mBleScanManager.setScanTime(SCANTIME);
+
     }
 
-    private void initTitleView() {
-        mDesPos = getIntent().getIntExtra("despos", -1);
-        String id = getIntent().getStringExtra("id");
-        String title = id + getResources().getString(R.string.elevator_id_unit) +
-                mDesPos + getResources().getString(R.string.floor_unit);
-        TextView titleView = findViewById(R.id.elevator_title);
-        titleView.setText(title);
-    }
-
-    private void updateFloorsView() {
-        TextView tvOne = findViewById(R.id.floor_one);
-        TextView tvTwo = findViewById(R.id.floor_two);
-        TextView tvThree = findViewById(R.id.floor_three);
-        TextView tvFour = findViewById(R.id.floor_four);
-        TextView tvFive = findViewById(R.id.floor_five);
-    }
 
     @Override
     protected void onResume() {
@@ -99,6 +75,7 @@ public class ArrivalActivity extends BaseActivity implements BleScanManager.OnSt
         if (mBleScanManager != null) {
             mBleScanManager.stopScan();
         }
+        mCopDevice = null;
     }
 
     @Override
@@ -112,6 +89,21 @@ public class ArrivalActivity extends BaseActivity implements BleScanManager.OnSt
 
     @Override
     public void onStopScan() {
+        if (mCopDevice == null) {
+            Toast.makeText(this, "No Cop Device Find", Toast.LENGTH_SHORT);
+            finish();
+        }
+    }
 
+    private void onFindCopDevice() {
+        Intent intent = new Intent(this, InWaitingActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("copdevice", mCopDevice);//序列化
+        bundle.putSerializable("device", mDevice);//序列化
+        intent.putExtras(bundle);//发送数据
+        intent.putExtra("title", mTitleView.getText().toString());
+        intent.putExtra("isUp", mIsUp);
+        intent.putExtra("despos", mDesPos);
+        startActivity(intent);
     }
 }

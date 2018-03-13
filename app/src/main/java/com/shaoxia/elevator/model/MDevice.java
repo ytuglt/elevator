@@ -9,19 +9,20 @@ import com.shaoxia.elevator.R;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by gonglt1 on 18-1-20.
  */
 
-public class MDevice implements Serializable{
+public class MDevice implements Serializable {
     public final static int IDLE = 0;
     public final static int COMUNICATING = 1;
 
     public static final String START = "WELM";
     public static final String INCALLID = "COP";
 
-//    private BluetoothDevice device;
+    //    private BluetoothDevice device;
     private int rssi;
 
     private String floor;
@@ -34,6 +35,8 @@ public class MDevice implements Serializable{
     private boolean isElevator;
 
     private List<String> mFloors;
+
+    private Map<String, Byte> mFloorsMap;
 
     public MDevice() {
 
@@ -136,6 +139,14 @@ public class MDevice implements Serializable{
 
     public void setFloors(List<String> mFloors) {
         this.mFloors = mFloors;
+    }
+
+    public Map<String, Byte> getFloorsMap() {
+        return mFloorsMap;
+    }
+
+    public void setFloorsMap(Map<String, Byte> mFloorsMap) {
+        this.mFloorsMap = mFloorsMap;
     }
 
     @Override

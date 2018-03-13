@@ -167,7 +167,7 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_call:
-                Intent intent = new Intent(getContext(), CallOutActivity.class);
+                Intent intent = new Intent(getContext(), OutWaitingActivity.class);
                 Bundle bundle=new Bundle();
                 bundle.putSerializable("device", mDevice);//序列化
                 intent.putExtras(bundle);//发送数据

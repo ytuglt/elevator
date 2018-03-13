@@ -46,10 +46,19 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".CallOutActivity"
+            android:name=".OutWaitingActivity"
             android:screenOrientation="portrait" />
+
         <activity
-            android:name=".ArrivalActivity"
+            android:name=".InWaitingActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".InArrivalActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".OutArrivalActivity"
             android:screenOrientation="portrait" />
 
         <service

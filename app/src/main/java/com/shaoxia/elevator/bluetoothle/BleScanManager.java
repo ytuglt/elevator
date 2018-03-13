@@ -23,6 +23,8 @@ public class BleScanManager {
     private OnStopScanListener mOnStopScanListener;
     private BluetoothAdapter.LeScanCallback mLeScanCallback;
 
+    private int mScanTime = Configure.DEFAULT_SCAN_TIME;
+
     //停止扫描
     private Runnable stopScanRunnable = new Runnable() {
         @Override
@@ -80,7 +82,7 @@ public class BleScanManager {
             return;
         }
         //10秒后停止扫描
-        mHandler.postDelayed(stopScanRunnable, Configure.DEFAULT_SCAN_TIME);
+        mHandler.postDelayed(stopScanRunnable, mScanTime);
         mBluetoothAdapter.startLeScan(mLeScanCallback);
     }
 
@@ -94,6 +96,10 @@ public class BleScanManager {
         }
         mHandler.removeCallbacks(stopScanRunnable);
         mBleManger.setBleState(BleManger.State.IDLE);
+    }
+
+    public void setScanTime(int time) {
+        mScanTime = time;
     }
 
     public interface OnStopScanListener {

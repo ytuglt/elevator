@@ -20,7 +20,9 @@ import com.shaoxia.elevator.widget.ExtendViewPager;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by gonglt1 on 2018/3/7.
@@ -250,6 +252,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         Logger.d(TAG, "parseData: ");
         List<String> floors = new ArrayList<>();
         List<Byte> reals = new ArrayList<>();
+        Map<String, Byte> floorMap = new HashMap<>();
         byte[] tmp = new byte[3];
         for (int i = 2; i < array[1]; i += 4) {
             reals.add(array[i]);
@@ -259,6 +262,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             String floor = CoderUtils.asciiToString(tmp).trim();
             Log.d(TAG, "parseData: floor:" + floor);
             floors.add(floor);
+            floorMap.put(floor, array[i]);
         }
 
         if (reals.size() >= 2) {
@@ -267,7 +271,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
                 Collections.reverse(floors);
             }
         }
-
+        mDevices.get(mCurPosition).setFloorsMap(floorMap);
         Logger.d(TAG, "parseData: floors size " + floors.size());
         mDevices.get(mCurPosition).setFloors(floors);
         ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
