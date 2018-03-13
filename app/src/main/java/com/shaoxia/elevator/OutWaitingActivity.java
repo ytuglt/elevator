@@ -57,6 +57,7 @@ public class OutWaitingActivity extends BaseWaitingActivity {
 
     @Override
     protected void getStatus() {
+        Logger.d(TAG, "getStatus: ");
         if (mIsComunicating) {
             Logger.d(TAG, "getStatus: is comunicating");
             return;
@@ -72,6 +73,7 @@ public class OutWaitingActivity extends BaseWaitingActivity {
 
     @Override
     protected boolean checkData(byte[] array) {
+        Logger.d(TAG, "checkData: ");
         if (array == null && array.length != 3) {
             Logger.e(TAG, "onReceiveData: return data null or to length error");
             return false;
@@ -102,6 +104,8 @@ public class OutWaitingActivity extends BaseWaitingActivity {
         }
 
         if (isOff) {
+            mBleComManager.disconnect();
+            mBleComManager.destroy();
             Intent intent = new Intent(this, OutArrivalActivity.class);
             Bundle bundle = new Bundle();
             bundle.putSerializable("device", mDevice);//序列化

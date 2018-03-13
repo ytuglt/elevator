@@ -34,8 +34,8 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="60dp"
         android:layout_marginTop="60dp"
-        android:paddingLeft="100dp"
-        android:paddingRight="100dp">
+        android:paddingLeft="70dp"
+        android:paddingRight="70dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -50,7 +50,8 @@
                 android:background="@drawable/floor_back"
                 android:gravity="center"
                 android:text="035"
-                android:textColor="@color/floor_unlight" />
+                android:textColor="@color/floor_unlight"
+                android:textSize="@dimen/floor_text_size" />
 
             <TextView
                 android:id="@+id/floor_two"
@@ -60,7 +61,8 @@
                 android:background="@drawable/floor_back"
                 android:gravity="center"
                 android:text="035"
-                android:textColor="@color/floor_unlight" />
+                android:textColor="@color/floor_unlight"
+                android:textSize="@dimen/floor_text_size" />
 
             <TextView
                 android:id="@+id/floor_three"
@@ -70,7 +72,8 @@
                 android:background="@drawable/floor_back"
                 android:gravity="center"
                 android:text="035"
-                android:textColor="@color/floor_unlight" />
+                android:textColor="@color/floor_unlight"
+                android:textSize="@dimen/floor_text_size" />
 
 
             <TextView
@@ -81,16 +84,18 @@
                 android:background="@drawable/floor_back"
                 android:gravity="center"
                 android:text="035"
-                android:textColor="@color/floor_unlight" />
+                android:textColor="@color/floor_unlight"
+                android:textSize="@dimen/floor_text_size" />
 
         </LinearLayout>
 
         <ImageView
             android:id="@+id/img_up"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:layout_height="240dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:layout_marginLeft="30dp"
             android:src="@drawable/up_anim" />
 
     </RelativeLayout>

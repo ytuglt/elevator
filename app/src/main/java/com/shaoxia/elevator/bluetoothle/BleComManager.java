@@ -207,6 +207,10 @@ public class BleComManager {
         public void run() {
             Logger.d(TAG, "stopConnectRunnable run: ");
             disconnectBle();
+
+            if (mOnComListener != null) {
+                mOnComListener.onConnectFailed();
+            }
         }
     };
 
@@ -241,6 +245,8 @@ public class BleComManager {
         void onBleDisconnected();
 
         void onReceiveData(byte[] array);
+
+        void onConnectFailed();
     }
 
     private OnComListener mOnComListener;
@@ -251,8 +257,10 @@ public class BleComManager {
 
     public void destroy() {
         Logger.d(TAG, "destroy: ");
-        mContext.unregisterReceiver(mGattUpdateReceiver);
-        disconnect();
+        if (mContext != null) {
+            mContext.unregisterReceiver(mGattUpdateReceiver);
+        }
+//        disconnect();
         mContext = null;
         mInstance = null;
         mHander = null;

@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.shaoxia.elevator.bluetoothle.BleScanManager;
@@ -61,6 +62,11 @@ public class OutArrivalActivity extends BaseArrivalActivity implements BleScanMa
 
     }
 
+    @Override
+    protected int getLightPos() {
+        return mDevice.getFloors().indexOf(mDevice.getFloor());
+    }
+
 
     @Override
     protected void onResume() {
@@ -96,6 +102,7 @@ public class OutArrivalActivity extends BaseArrivalActivity implements BleScanMa
     }
 
     private void onFindCopDevice() {
+        Logger.d(TAG, "onFindCopDevice: ");
         Intent intent = new Intent(this, InWaitingActivity.class);
         Bundle bundle = new Bundle();
         bundle.putSerializable("copdevice", mCopDevice);//序列化
@@ -105,5 +112,6 @@ public class OutArrivalActivity extends BaseArrivalActivity implements BleScanMa
         intent.putExtra("isUp", mIsUp);
         intent.putExtra("despos", mDesPos);
         startActivity(intent);
+        finish();
     }
 }

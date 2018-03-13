@@ -100,10 +100,6 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             }
         });
 
-        mBleScanManager = BleScanManager.getInstance(this);
-        mBleScanManager.setOnStopScanListener(this);
-        mBleScanManager.setLeScanCallback(mLeScanCallback);
-
         mBleComManager = BleComManager.getInstance(this);
         mBleComManager.setOnComListener(this);
     }
@@ -112,6 +108,9 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     protected void onResume() {
         super.onResume();
         Logger.d(TAG, "onResume: ");
+        mBleScanManager = BleScanManager.getInstance(this);
+        mBleScanManager.setOnStopScanListener(this);
+        mBleScanManager.setLeScanCallback(mLeScanCallback);
         mBleScanManager.startScan();
     }
 
@@ -216,6 +215,11 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         Toast.makeText(this, "断开连接", Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onConnectFailed() {
+        Logger.d(TAG, "onConnectFailed: ");
+    }
+
     private byte[] mReceiveData;
     private int mDataLenth;
     private int mHasReceivelength;
@@ -230,11 +234,15 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         }
 
         if (array[0] == (byte) 0xEC) {
-            Logger.e(TAG, "onReceiveData: return data head error");
+            Logger.e(TAG, "onReceiveData: return data head data");
             mDataLenth = array[1] + 3;
             mReceiveData = new byte[mDataLenth];
         }
 
+        if (mHasReceivelength >= mDataLenth) {
+            Logger.d(TAG, "onReceiveData: over receive data length");
+            return;
+        }
         System.arraycopy(array, 0, mReceiveData, mHasReceivelength, array.length);
         mHasReceivelength += array.length;
 

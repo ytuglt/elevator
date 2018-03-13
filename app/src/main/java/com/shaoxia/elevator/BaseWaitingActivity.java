@@ -1,6 +1,5 @@
 package com.shaoxia.elevator;
 
-import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,7 +12,6 @@ import com.shaoxia.elevator.bluetoothle.BleComManager;
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.model.MDevice;
 import com.shaoxia.elevator.utils.StringUtils;
-import com.shaoxia.elevator.utils.VerifyUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +98,7 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
         mTvThree.setText(floors.get(2));
         mTvFour.setText(floors.get(3));
 
-        int pos = floors.indexOf(mDevice.getFloor());
+        int pos = floors.indexOf(mDevice.getFloors().get(getLightPos()));
         switch (pos) {
             case 0:
                 lightCurFloor(mTvOne);
@@ -163,6 +161,14 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        if (mBleComManager != null) {
+            mBleComManager.disconnect();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         Logger.d(TAG, "onDestroy: ");
@@ -191,12 +197,21 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
     public void onBleDisconnected() {
         Logger.d(TAG, "onBleDisconnected: ");
         mIsComunicating = false;
+        if (this.isFinishing()) {
+            Logger.d(TAG, "onBleDisconnected: isFinishing");
+            return;
+        }
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 getStatus();
             }
         }, QUERY_INTERVAL);
+    }
+
+    @Override
+    public void onConnectFailed() {
+        Logger.d(TAG, "onConnectFailed: ");
     }
 
     @Override

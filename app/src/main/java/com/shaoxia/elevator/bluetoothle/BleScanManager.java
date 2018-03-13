@@ -63,7 +63,7 @@ public class BleScanManager {
      */
     public void startScan() {
         Logger.d(TAG, "startScan: ");
-        if (mBleManger.isScanning()) {
+        if (mBleManger !=null && mBleManger.isScanning()) {
             Logger.d(TAG, "startScan: mBleManger is scanning");
             stopScan();
         }
@@ -94,8 +94,12 @@ public class BleScanManager {
         if (mBluetoothAdapter != null) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
         }
-        mHandler.removeCallbacks(stopScanRunnable);
-        mBleManger.setBleState(BleManger.State.IDLE);
+        if (mHandler != null) {
+            mHandler.removeCallbacks(stopScanRunnable);
+        }
+        if (mBleManger != null) {
+            mBleManger.setBleState(BleManger.State.IDLE);
+        }
     }
 
     public void setScanTime(int time) {

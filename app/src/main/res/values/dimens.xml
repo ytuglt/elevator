@@ -2,4 +2,6 @@
 <resources>
     <dimen name="in_icon_small_padding">6dp</dimen>
     <dimen name="in_call_icon_small_top_margin">10dp</dimen>
+
+    <dimen name="floor_text_size">40dp</dimen>
 </resources>

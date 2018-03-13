@@ -47,18 +47,22 @@
 
         <activity
             android:name=".OutWaitingActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".InWaitingActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".InArrivalActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".OutArrivalActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
         <service

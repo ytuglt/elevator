@@ -110,5 +110,10 @@ public class InWaitingActivity extends BaseWaitingActivity {
         }
     }
 
-
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        Logger.d(TAG, "onActivityResult: ");
+//        finish();
+//    }
 }

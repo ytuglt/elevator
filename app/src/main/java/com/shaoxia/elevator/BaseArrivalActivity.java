@@ -14,7 +14,7 @@ import java.util.List;
  * Created by gonglt1 on 18-3-11.
  */
 
-public class BaseArrivalActivity extends BaseActivity {
+public abstract class BaseArrivalActivity extends BaseActivity {
     private static final String TAG = "BaseArrivalActivity";
 
     protected int mDesPos;
@@ -67,7 +67,7 @@ public class BaseArrivalActivity extends BaseActivity {
         tvFour.setText(floors.get(3));
         tvFive.setText(floors.get(4));
 
-        int pos = floors.indexOf(mDevice.getFloor());
+        int pos = floors.indexOf(mDevice.getFloors().get(getLightPos()));
         switch (pos) {
             case 0:
                 lightCurFloor(tvOne);
@@ -92,11 +92,12 @@ public class BaseArrivalActivity extends BaseActivity {
         textView.setTextColor(getResources().getColor(R.color.floor_light, null));
         textView.setShadowLayer(40, 0, 0, getResources().getColor(R.color.floor_light, null));
     }
+    protected abstract int getLightPos();
 
     private List<String> getFloors() {
         List<String> floors = new ArrayList<>();
         List<String> allFloors = mDevice.getFloors();
-        int curpos = mDesPos;
+        int curpos = getLightPos();
 
         if (mIsUp) {
             if (curpos - 4 >= 0) {

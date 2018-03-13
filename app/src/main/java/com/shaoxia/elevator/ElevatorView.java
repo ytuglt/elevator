@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -38,6 +39,8 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
 
     private TextView mTitle;
 
+    private int mSelPosition;
+
     public ElevatorView(Context context, MDevice device) {
         super(context);
         mDevice = device;
@@ -61,10 +64,16 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
         mBtnCall = findViewById(R.id.btn_call);
         mBtnCall.setOnClickListener(this);
         mTitle = findViewById(R.id.elevator_title);
-        String text = mDevice.getElevatorId()
-                + getContext().getResources().getString(R.string.elevator_id_unit)
-                + mDevice.getFloor()
-                + getContext().getResources().getString(R.string.floor_unit);
+        String text;
+        if (mDevice.getElevatorId() == null || mDevice.getFloor() == null) {
+            text = "A梯1层";
+        } else {
+            text = mDevice.getElevatorId()
+                    + getContext().getResources().getString(R.string.elevator_id_unit)
+                    + mDevice.getFloor()
+                    + getContext().getResources().getString(R.string.floor_unit);
+        }
+
         mTitle.setText(text);
         initWheelView();
     }
@@ -112,7 +121,7 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
     private List<String> createArrays() {
         Logger.d(TAG, "createArrays: ");
         ArrayList<String> list = new ArrayList<String>();
-        for (int i = 20; i >= -2; i--) {
+        for (int i = 3; i >= -2; i--) {
             if (i == 0) {
                 continue;
             }
@@ -124,6 +133,7 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
     @Override
     public void onItemSelected(int position, String s) {
         Logger.d(TAG, "onItemSelected: position = " + position + ";s = " + s);
+        mSelPosition = position;
         if (mFloors.contains(mDevice.getFloor())) {
             updateCallView(!s.equals(mDevice.getFloor()));
         } else {
@@ -168,12 +178,12 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
         switch (v.getId()) {
             case R.id.btn_call:
                 Intent intent = new Intent(getContext(), OutWaitingActivity.class);
-                Bundle bundle=new Bundle();
+                Bundle bundle = new Bundle();
                 bundle.putSerializable("device", mDevice);//序列化
                 intent.putExtras(bundle);//发送数据
 //                intent.putExtra("device", mDevice);
                 intent.putExtra("title", mTitle.getText());
-                intent.putExtra("despos", mFloolWheelView.getSelection());
+                intent.putExtra("despos", mSelPosition);
                 getContext().startActivity(intent);
                 break;
         }
