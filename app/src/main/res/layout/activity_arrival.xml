@@ -44,7 +44,8 @@
             android:background="@drawable/floor_back"
             android:gravity="center"
             android:text="035"
-            android:textColor="@color/floor_unlight" />
+            android:textColor="@color/floor_unlight"
+            android:textSize="@dimen/floor_text_size" />
 
         <TextView
             android:id="@+id/floor_two"
@@ -54,7 +55,8 @@
             android:background="@drawable/floor_back"
             android:gravity="center"
             android:text="035"
-            android:textColor="@color/floor_unlight" />
+            android:textColor="@color/floor_unlight"
+            android:textSize="@dimen/floor_text_size" />
 
         <TextView
             android:id="@+id/floor_three"
@@ -64,7 +66,8 @@
             android:background="@drawable/floor_back"
             android:gravity="center"
             android:text="035"
-            android:textColor="@color/floor_unlight" />
+            android:textColor="@color/floor_unlight"
+            android:textSize="@dimen/floor_text_size" />
 
 
         <TextView
@@ -75,7 +78,8 @@
             android:background="@drawable/floor_back"
             android:gravity="center"
             android:text="035"
-            android:textColor="@color/floor_unlight" />
+            android:textColor="@color/floor_unlight"
+            android:textSize="@dimen/floor_text_size" />
 
         <TextView
             android:id="@+id/floor_five"
@@ -85,7 +89,8 @@
             android:background="@drawable/floor_back"
             android:gravity="center"
             android:text="035"
-            android:textColor="@color/floor_unlight" />
+            android:textColor="@color/floor_unlight"
+            android:textSize="@dimen/floor_text_size" />
 
     </LinearLayout>
 

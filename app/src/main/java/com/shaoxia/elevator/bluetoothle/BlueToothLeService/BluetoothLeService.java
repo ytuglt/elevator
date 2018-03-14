@@ -187,7 +187,7 @@ public class BluetoothLeService extends Service {
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 System.out.println("onDescriptorWrite GATT_SUCCESS------------------->SUCCESS");
-            } else if (status == BluetoothGatt.GATT_FAILURE){
+            } else if (status == BluetoothGatt.GATT_FAILURE) {
                 System.out.println("onDescriptorWrite GATT_FAIL------------------->FAIL");
                 Intent intent = new Intent(ACTION_GATT_DESCRIPTORWRITE_RESULT);
                 intent.putExtra(Constants.EXTRA_DESCRIPTOR_WRITE_RESULT, status);
@@ -535,8 +535,8 @@ public class BluetoothLeService extends Service {
         @Override
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
 //            super.onMtuChanged(gatt, mtu, status);
-            System.out.println("onMtuChanged-------------------->size:"+mtu);
-            if (status == BluetoothGatt.GATT_SUCCESS){
+            System.out.println("onMtuChanged-------------------->size:" + mtu);
+            if (status == BluetoothGatt.GATT_SUCCESS) {
                 System.out.println("onMtuChanged-------------------->设置成功");
             }
         }
@@ -736,7 +736,6 @@ public class BluetoothLeService extends Service {
     }
 
 
-
     /**
      * Connects to the GATT server hosted on the BlueTooth LE device.
      *
@@ -767,6 +766,8 @@ public class BluetoothLeService extends Service {
         mBluetoothDeviceAddress = address;
         mBluetoothDeviceName = devicename;
 
+        Logger.d(TAG, "connect: mBluetoothDeviceAddress " + mBluetoothDeviceAddress + ",mBluetoothDeviceName " + mBluetoothDeviceName);
+
         mConnectionState = STATE_CONNECTING;
     }
 
@@ -794,7 +795,7 @@ public class BluetoothLeService extends Service {
             return;
         }
 
-        if (mConnectionState == STATE_CONNECTED){
+        if (mConnectionState == STATE_CONNECTED) {
             //  Logger.datalog(mContext.getResources().getString(R.string.dl_device_connecting));
             mBluetoothGatt.disconnect();
             mBluetoothGatt.close();
@@ -819,7 +820,7 @@ public class BluetoothLeService extends Service {
      *
      * @param characteristic The characteristic to read from.
      */
-    public static void readCharacteristic( BluetoothGattCharacteristic characteristic) {
+    public static void readCharacteristic(BluetoothGattCharacteristic characteristic) {
 
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             return;
@@ -841,7 +842,6 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.readDescriptor(descriptor);
 
     }
-
 
 
     private static String getHexValue(byte[] array) {
@@ -872,7 +872,6 @@ public class BluetoothLeService extends Service {
     }
 
 
-
     /**
      * Enables or disables notification on a give characteristic.
      *
@@ -899,7 +898,6 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
     }
-
 
 
     /**
@@ -934,17 +932,17 @@ public class BluetoothLeService extends Service {
 
     /**
      * 改变BLE默认的单次发包、收包的最大长度,用于android 5.0及以上版本
+     *
      * @param mtu
      * @return
      */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public static boolean requestMtu(int mtu){
+    public static boolean requestMtu(int mtu) {
         if (mBluetoothGatt != null) {
             return mBluetoothGatt.requestMtu(mtu);
         }
         return false;
     }
-
 
 
     /**

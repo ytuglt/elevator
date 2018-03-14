@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
@@ -61,9 +62,9 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
                     Logger.d(TAG, "run: add device" + mDev.getDevName());
 
                     //TODO
-                    if (mDevices.contains(mDev)) {
-                        return;
-                    }
+//                    if (mDevices.contains(mDev)) {
+//                        return;
+//                    }
                     if (mDev.getDevName() == null) {
                         return;
                     }
@@ -100,18 +101,20 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             }
         });
 
-        mBleComManager = BleComManager.getInstance(this);
-        mBleComManager.setOnComListener(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Logger.d(TAG, "onResume: ");
+        mDevices.clear();
         mBleScanManager = BleScanManager.getInstance(this);
         mBleScanManager.setOnStopScanListener(this);
         mBleScanManager.setLeScanCallback(mLeScanCallback);
         mBleScanManager.startScan();
+
+        mBleComManager = BleComManager.getInstance(this);
+        mBleComManager.setOnComListener(this);
     }
 
     @Override
@@ -314,10 +317,26 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     }
 
     private void onPageChanged(int position) {
+        Logger.d(TAG, "onPageChanged: ");
         if (mCurPosition == position) {
             Logger.d(TAG, "onPageChanged: same position");
             return;
         }
+        mCurPosition = position;
+        getFloorInfo(position);
     }
 
+    private boolean isFirstBack = true;
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (isFirstBack) {
+                Toast.makeText(this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                isFirstBack = false;
+                return false;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 }

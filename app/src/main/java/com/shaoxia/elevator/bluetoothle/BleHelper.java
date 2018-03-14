@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.shaoxia.elevator.R;
@@ -96,6 +97,7 @@ public class BleHelper {
         Logger.d(TAG, "connectDevice: ");
         //如果是连接状态，断开，重新连接
         if (BluetoothLeService.getConnectionState() != BluetoothLeService.STATE_DISCONNECTED) {
+            Logger.d(TAG, "connectDevice: disconnect");
             BluetoothLeService.disconnect();
         }
         BleManger.getInstance().setBleState(BleManger.State.CONNECTING);

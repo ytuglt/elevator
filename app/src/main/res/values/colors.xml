@@ -16,6 +16,6 @@
     <color name="call_unenable">#b9b7b8</color>
     <color name="call_enable">#34cbff</color>
 
-    <color name="floor_light">#ffffff</color>
-    <color name="floor_unlight">#b5c5d5</color>
+    <color name="floor_light">#ffffffff</color>
+    <color name="floor_unlight">#b3ffffff</color>
 </resources>
