@@ -1,37 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
     android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_marginTop="60dp"
-        android:gravity="center">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:scaleType="fitXY"
-            android:src="@drawable/floor_title_background" />
-
-        <TextView
-            android:id="@+id/elevator_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="A梯1层"
-            android:textColor="#ffffff"
-            android:textSize="17dp" />
-    </RelativeLayout>
+    <include
+        android:id="@+id/title_container"
+        layout="@layout/layout_title" />
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_above="@+id/btn_call"
+        android:layout_below="@+id/title_container"
+        android:layout_centerHorizontal="true"
         android:layout_marginBottom="60dp"
         android:layout_marginTop="60dp"
         android:paddingLeft="70dp"
@@ -41,6 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
             android:orientation="vertical">
 
             <TextView
@@ -105,10 +89,12 @@
         android:id="@+id/btn_call"
         android:layout_width="match_parent"
         android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/call_margin_bottom"
         android:background="@drawable/button_background"
         android:gravity="center"
         android:text="Waiting..."
         android:textColor="@color/btn_call_color"
         android:textSize="32dp" />
 
-</LinearLayout>
+</RelativeLayout>

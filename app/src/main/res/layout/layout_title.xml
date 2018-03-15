@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/title_container"
+    android:layout_width="match_parent"
+    android:layout_height="20dp"
+    android:layout_alignParentTop="true"
+    android:layout_marginTop="60dp">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/left_dot"
+        android:scaleType="fitXY"
+        android:src="@drawable/line" />
+
+    <ImageView
+        android:id="@+id/left_dot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/elevator_title"
+        android:src="@drawable/circle_dot" />
+
+    <TextView
+        android:id="@+id/elevator_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginStart="20dp"
+        android:text="A梯1层"
+        android:textColor="#ffffff"
+        android:textSize="17dp" />
+
+    <ImageView
+        android:id="@+id/right_dot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/elevator_title"
+        android:src="@drawable/circle_dot" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/right_dot"
+        android:scaleType="fitXY"
+        android:src="@drawable/line" />
+</RelativeLayout>

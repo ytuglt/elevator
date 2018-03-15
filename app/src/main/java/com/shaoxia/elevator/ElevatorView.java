@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -76,6 +77,9 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
 
         mTitle.setText(text);
         initWheelView();
+
+        ImageView refresh = findViewById(R.id.refresh);
+        refresh.setOnClickListener(this);
     }
 
     private void initWheelView() {
@@ -186,6 +190,21 @@ public class ElevatorView extends LinearLayout implements WheelView.OnWheelItemS
                 intent.putExtra("despos", mSelPosition);
                 getContext().startActivity(intent);
                 break;
+            case R.id.refresh:
+                if (mOnRefreshClickListener != null) {
+                    mOnRefreshClickListener.onRerefsh();
+                }
+                break;
         }
+    }
+
+    private OnRefreshClickListener mOnRefreshClickListener;
+
+    public void setOnRefreshClickListener(OnRefreshClickListener listener) {
+        mOnRefreshClickListener = listener;
+    }
+
+    public interface OnRefreshClickListener {
+        void onRerefsh();
     }
 }

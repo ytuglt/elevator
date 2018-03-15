@@ -4,4 +4,6 @@
     <dimen name="in_call_icon_small_top_margin">10dp</dimen>
 
     <dimen name="floor_text_size">20dp</dimen>
+
+    <dimen name="call_margin_bottom">40dp</dimen>
 </resources>

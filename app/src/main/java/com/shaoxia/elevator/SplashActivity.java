@@ -30,7 +30,7 @@ import java.util.Map;
  */
 
 public class SplashActivity extends BaseActivity implements BleScanManager.OnStopScanListener,
-        BleComManager.OnComListener {
+        BleComManager.OnComListener, ElevatorView.OnRefreshClickListener {
     private static final String TAG = "SplashActivity";
     private ExtendViewPager mViewPager;
     private ElevatorsAdapter mAdapter;
@@ -85,6 +85,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
 
         mViewPager = findViewById(R.id.elevator_viewpager);
         mAdapter = new ElevatorsAdapter(this, mDevices);
+        mAdapter.setOnRefreshClickListener(this);
         mViewPager.setAdapter(mAdapter);
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -108,22 +109,37 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         super.onResume();
         Logger.d(TAG, "onResume: ");
         mDevices.clear();
+        updateAdapter();
         mBleScanManager = BleScanManager.getInstance(this);
         mBleScanManager.setOnStopScanListener(this);
         mBleScanManager.setLeScanCallback(mLeScanCallback);
-        mBleScanManager.startScan();
+        startScan();
 
         mBleComManager = BleComManager.getInstance(this);
         mBleComManager.setOnComListener(this);
+    }
+
+    private boolean mIsSanning = false;
+
+    private void startScan() {
+        if (mBleScanManager != null) {
+            mIsSanning = true;
+            mBleScanManager.startScan();
+        }
+    }
+
+    private void stopScan() {
+        if (mBleScanManager != null) {
+            mBleScanManager.stopScan();
+            mIsSanning = false;
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Logger.d(TAG, "onPause: ");
-        if (mBleScanManager != null) {
-            mBleScanManager.stopScan();
-        }
+        stopScan();
 
         if (mBleComManager != null) {
             mBleComManager.disconnect();
@@ -133,6 +149,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     @Override
     public void onStopScan() {
         Logger.d(TAG, "onStopScan: ");
+        mIsSanning = false;
         if (mDevices.size() <= 0) {
             Toast.makeText(this, "未发现设备", Toast.LENGTH_SHORT).show();
             MDevice device = new MDevice();
@@ -162,6 +179,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     protected void onDestroy() {
         super.onDestroy();
         Logger.d(TAG, "onDestroy: ");
+        mIsComunicating = false;
         if (mBleScanManager != null) {
             mBleScanManager.destroy();
         }
@@ -186,15 +204,20 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         mBleComManager.sendData(cmd);
     }
 
+    protected boolean mIsComunicating;
+
     @Override
     public void onCommunicating() {
         Logger.d(TAG, "onCommunicating: ");
+        mIsComunicating = true;
         if (mViewPager != null) {
             mViewPager.setPagingEnabled(false);
         }
 
         ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
-        elevatorView.setState(MDevice.COMUNICATING);
+        if (elevatorView != null) {
+            elevatorView.setState(MDevice.COMUNICATING);
+        }
     }
 
     @Override
@@ -205,12 +228,15 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     @Override
     public void onBleDisconnected() {
         Logger.d(TAG, "onBleDisconnected: ");
+        mIsComunicating = false;
         mReceiveData = null;
         mDataLenth = 0;
         mHasReceivelength = 0;
 
         ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
-        elevatorView.setState(MDevice.IDLE);
+        if (elevatorView != null) {
+            elevatorView.setState(MDevice.IDLE);
+        }
 
         if (mViewPager != null) {
             mViewPager.setPagingEnabled(true);
@@ -221,6 +247,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     @Override
     public void onConnectFailed() {
         Logger.d(TAG, "onConnectFailed: ");
+        mIsComunicating = false;
     }
 
     private byte[] mReceiveData;
@@ -286,7 +313,9 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         Logger.d(TAG, "parseData: floors size " + floors.size());
         mDevices.get(mCurPosition).setFloors(floors);
         ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
-        elevatorView.updateWheelData();
+        if (elevatorView != null) {
+            elevatorView.updateWheelData();
+        }
         mAdapter.notifyDataSetChanged();
     }
 
@@ -338,5 +367,23 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             }
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onRerefsh() {
+        Logger.d(TAG, "onRerefsh: ");
+        if (mIsSanning) {
+            Logger.d(TAG, "onRerefsh: is communicating ");
+            Toast.makeText(this, "Scanning,please wait", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (mBleComManager != null) {
+            mBleComManager.disconnect();
+        }
+
+        stopScan();
+        mDevices.clear();
+        updateAdapter();
+        startScan();
     }
 }

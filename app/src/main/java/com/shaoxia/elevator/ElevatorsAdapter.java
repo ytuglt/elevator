@@ -26,12 +26,20 @@ public class ElevatorsAdapter extends PagerAdapter {
 
     private List<ElevatorView> mViews = new ArrayList<>();
 
+    private ElevatorView.OnRefreshClickListener mOnRefreshClickListener;
+
+    public void setOnRefreshClickListener(ElevatorView.OnRefreshClickListener listener) {
+        mOnRefreshClickListener = listener;
+    }
+
     public ElevatorsAdapter(Context context, List<MDevice> devices) {
         mDevices = devices;
         mContext = context;
         Logger.d(TAG, "ElevatorsAdapter: mDevices size " + mDevices.size());
         for (int i = 0; i < mDevices.size(); i++) {
-            mViews.add(new ElevatorView(mContext, mDevices.get(i)));
+            ElevatorView view = new ElevatorView(mContext, mDevices.get(i));
+            view.setOnRefreshClickListener(mOnRefreshClickListener);
+            mViews.add(view);
         }
     }
 
@@ -39,7 +47,9 @@ public class ElevatorsAdapter extends PagerAdapter {
         Logger.d(TAG, "updateList: deviceList size " + mDevices.size());
         mViews.clear();
         for (int i = 0; i < mDevices.size(); i++) {
-            mViews.add(new ElevatorView(mContext, mDevices.get(i)));
+            ElevatorView view = new ElevatorView(mContext, mDevices.get(i));
+            view.setOnRefreshClickListener(mOnRefreshClickListener);
+            mViews.add(view);
         }
         notifyDataSetChanged();
     }
@@ -50,6 +60,10 @@ public class ElevatorsAdapter extends PagerAdapter {
     }
 
     public ElevatorView getItem(int position) {
+        if (position >= mViews.size()) {
+            Logger.d(TAG, "getItem: out of index of views");
+            return null;
+        }
         return mViews.get(position);
     }
 
