@@ -2,7 +2,6 @@ package com.shaoxia.elevator;
 
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -74,7 +73,7 @@ public class ElevatorsAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        Log.d(TAG, "instantiateItem: " + position);
+        Logger.d(TAG, "instantiateItem: " + position);
 //        View convertView = null;
 ////        if (null != recycledViews && !recycledViews.isEmpty()) {
 ////            convertView = recycledViews.getFirst();
@@ -90,7 +89,7 @@ public class ElevatorsAdapter extends PagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        Log.d(TAG, "destroyItem: " + position);
+        Logger.d(TAG, "destroyItem: " + position);
         View view = (View) object;
         container.removeView(view);
 //        recycledViews.add(view);
