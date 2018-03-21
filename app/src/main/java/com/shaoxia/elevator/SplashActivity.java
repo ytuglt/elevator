@@ -30,7 +30,7 @@ import java.util.Map;
  */
 
 public class SplashActivity extends BaseActivity implements BleScanManager.OnStopScanListener,
-        BleComManager.OnComListener, ElevatorView.OnRefreshClickListener {
+        BleComManager.OnComListener, ElevatorsAdapter.OnRefreshClickListener {
     private static final String TAG = "SplashActivity";
     private ExtendViewPager mViewPager;
     private ElevatorsAdapter mAdapter;
@@ -62,9 +62,9 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
                     Logger.d(TAG, "run: add device" + mDev.getDevName());
 
                     //TODO
-//                    if (mDevices.contains(mDev)) {
-//                        return;
-//                    }
+                    if (mDevices.contains(mDev)) {
+                        return;
+                    }
                     if (mDev.getDevName() == null) {
                         return;
                     }
@@ -171,7 +171,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         Log.d(TAG, "updateAdapter: ");
         if (mAdapter != null) {
             Logger.d(TAG, "onStopScan: mDevices size " + mDevices.size() + ";adapter count " + mAdapter.getCount());
-            mAdapter.updateList();
+            mAdapter.reloadData(mDevices);
         }
     }
 
@@ -214,9 +214,13 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             mViewPager.setPagingEnabled(false);
         }
 
-        ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
-        if (elevatorView != null) {
-            elevatorView.setState(MDevice.COMUNICATING);
+        setViewState(MDevice.COMUNICATING);
+    }
+
+    private void setViewState(int state) {
+        ElevatorsAdapter.ViewHolder viewHolder = mAdapter.getHolder(mCurPosition);
+        if (viewHolder != null) {
+            viewHolder.setState(state);
         }
     }
 
@@ -233,10 +237,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         mDataLenth = 0;
         mHasReceivelength = 0;
 
-        ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
-        if (elevatorView != null) {
-            elevatorView.setState(MDevice.IDLE);
-        }
+        setViewState(MDevice.IDLE);
 
         if (mViewPager != null) {
             mViewPager.setPagingEnabled(true);
@@ -273,6 +274,12 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             Logger.d(TAG, "onReceiveData: over receive data length");
             return;
         }
+
+        if (array.length + mHasReceivelength > mReceiveData.length) {
+            Logger.d(TAG, "onReceiveData: receive data length has over the datalengh");
+            return;
+        }
+
         System.arraycopy(array, 0, mReceiveData, mHasReceivelength, array.length);
         mHasReceivelength += array.length;
 
@@ -312,9 +319,9 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         mDevices.get(mCurPosition).setFloorsMap(floorMap);
         Logger.d(TAG, "parseData: floors size " + floors.size());
         mDevices.get(mCurPosition).setFloors(floors);
-        ElevatorView elevatorView = mAdapter.getItem(mCurPosition);
-        if (elevatorView != null) {
-            elevatorView.updateWheelData();
+        ElevatorsAdapter.ViewHolder viewHolder = mAdapter.getHolder(mCurPosition);
+        if (viewHolder != null) {
+            viewHolder.updateWheelData();
         }
         mAdapter.notifyDataSetChanged();
     }
