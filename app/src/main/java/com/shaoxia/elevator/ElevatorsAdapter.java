@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.model.MDevice;
+import com.shaoxia.elevator.utils.ViewUtils;
 import com.wx.wheelview.adapter.ArrayWheelAdapter;
 import com.wx.wheelview.widget.WheelView;
 
@@ -126,6 +127,8 @@ public class ElevatorsAdapter extends PagerAdapter {
             mFloolWheelView = (WheelView) view.findViewById(R.id.floor_wheel);
             mIvRefresh.setOnClickListener(this);
             mBtnCall.setOnClickListener(this);
+            ViewUtils.setViewtint(mBtnCall);
+            ViewUtils.setViewtint(mIvRefresh);
             initWheelView();
         }
 
