@@ -3,9 +3,11 @@ package com.shaoxia.elevator.model;
 import android.bluetooth.BluetoothDevice;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.shaoxia.elevator.MyApplication;
 import com.shaoxia.elevator.R;
+import com.shaoxia.elevator.log.Logger;
 
 import java.io.Serializable;
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.Map;
  */
 
 public class MDevice implements Serializable {
+    private static final String TAG = "MDevice";
     public final static int IDLE = 0;
     public final static int COMUNICATING = 1;
 
@@ -51,18 +54,19 @@ public class MDevice implements Serializable {
         devName = device.getName();
         devAddress = device.getAddress();
 
-//        //TODO TEST
-//        if (devName != null && devName.startsWith("Zero")) {
-//            floor = devName.substring(4, 7);
-//            elevatorId = devName.substring(7, 10);
+        //TODO TEST
+        if (devName != null && devName.startsWith("Zero")) {
+            floor = devName.substring(4, 7);
+            elevatorId = devName.substring(7, 10);
 //            reNameElevatorId();
-//            floor = "2";
-//            elevatorId = "00B";
-//            isElevator = true;
-//            isInCall = true;
-//            return;
-//        }
-//        //TODO
+            floor = Integer.parseInt("001") + "";
+            Logger.d(TAG, "parseName:floor =" + floor);
+            elevatorId = "XXX";
+            isElevator = true;
+            isInCall = true;
+            return;
+        }
+        //TODO
 
         if (devName == null || !devName.startsWith(START) || devName.length() < 10) {
             isElevator = false;
@@ -70,20 +74,23 @@ public class MDevice implements Serializable {
         }
 
         floor = devName.substring(7, 10);
+        floor = floor.trim();
+        floor = String.valueOf(Integer.parseInt(floor));
+
         elevatorId = devName.substring(4, 7);
         if (INCALLID.equals(elevatorId)) {
             isInCall = true;
-            floor = MyApplication.getInstance().getResources().getString(R.string.in_elevator);
+//            floor = MyApplication.getInstance().getResources().getString(R.string.in_elevator);
         } else {
             isInCall = false;
         }
-        reNameElevatorId();
+//        reNameElevatorId();
         isElevator = true;
     }
 
-    private void reNameElevatorId() {
-        elevatorId = MyApplication.getInstance().getResources().getString(R.string.elevator) + elevatorId;
-    }
+//    private void reNameElevatorId() {
+//        elevatorId = MyApplication.getInstance().getResources().getString(R.string.elevator) + elevatorId;
+//    }
 
     public boolean isElevator() {
         return isElevator;

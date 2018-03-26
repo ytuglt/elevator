@@ -5,13 +5,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.model.MDevice;
@@ -207,8 +207,10 @@ public class ElevatorsAdapter extends PagerAdapter {
             Logger.d(TAG, "onItemSelected: position = " + position + ";s = " + s);
             mSelPosition = position;
             if (mFloors.contains(mDevice.getFloor())) {
+                Logger.d(TAG, "onItemSelected: contains device floor");
                 updateCallView(!s.equals(mDevice.getFloor()));
             } else {
+                Logger.d(TAG, "onItemSelected: not contains device floor");
                 updateCallView(false);
             }
         }
@@ -254,6 +256,16 @@ public class ElevatorsAdapter extends PagerAdapter {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.btn_call:
+                    if (mDevice == null) {
+                        Logger.e(TAG, "onClick: devices is null");
+                        return;
+                    }
+                    if (mDevice.getFloors().size() < 4) {
+                        Logger.e(TAG, "onClick: Floors is less then 4");
+                        Toast.makeText(mContext, "Floors is less then 4", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     Intent intent = new Intent(mContext, OutWaitingActivity.class);
                     Bundle bundle = new Bundle();
                     bundle.putSerializable("device", mDevice);//序列化

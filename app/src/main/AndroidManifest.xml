@@ -68,6 +68,10 @@
         <service
             android:name=".bluetoothle.BlueToothLeService.BluetoothLeService"
             android:enabled="true" />
+
+        <activity android:name="com.shaoxia.elevator.crash.PatchDialogActivity"
+            android:theme="@style/Theme.Patch.Dialog"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>
