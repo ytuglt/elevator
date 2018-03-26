@@ -242,7 +242,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         if (mViewPager != null) {
             mViewPager.setPagingEnabled(true);
         }
-        Toast.makeText(this, "断开连接", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "断开连接", Toast.LENGTH_SHORT).show();
     }
 
     @Override
