@@ -266,7 +266,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
 
         if (array[0] == (byte) 0xEC) {
             Logger.e(TAG, "onReceiveData: return data head data");
-            mDataLenth = array[1] + 3;
+            mDataLenth = array[1] * 4 + 3;
             mReceiveData = new byte[mDataLenth];
         }
 
