@@ -266,7 +266,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
 
         if (array[0] == (byte) 0xEC) {
             Logger.e(TAG, "onReceiveData: return data head data");
-            mDataLenth = array[1] * 4 + 3;
+            mDataLenth = getFloorDataLengh(array) + 3;
             mReceiveData = new byte[mDataLenth];
         }
 
@@ -293,13 +293,17 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         }
     }
 
+    private int getFloorDataLengh(byte[] array) {
+        return array[1] * 4;
+    }
+
     private void parseData(byte[] array) {
         Logger.d(TAG, "parseData: ");
         List<String> floors = new ArrayList<>();
         List<Byte> reals = new ArrayList<>();
         Map<String, Byte> floorMap = new HashMap<>();
         byte[] tmp = new byte[3];
-        for (int i = 2; i < array[1]; i += 4) {
+        for (int i = 2; i < getFloorDataLengh(array); i += 4) {
             reals.add(array[i]);
             tmp[0] = array[i + 1];
             tmp[1] = array[i + 2];
@@ -337,7 +341,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             return false;
         }
 
-        if ((array.length - 3) != array[1]) {
+        if ((array.length - 3) != getFloorDataLengh(array)) {
             Logger.e(TAG, "onReceiveData: return data length error");
             return false;
         }
