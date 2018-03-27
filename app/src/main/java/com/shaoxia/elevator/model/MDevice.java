@@ -78,7 +78,7 @@ public class MDevice implements Serializable {
 //        floor = String.valueOf(Integer.parseInt(floor));
 
         elevatorId = devName.substring(4, 7);
-        if (INCALLID.equals(elevatorId)) {
+        if (INCALLID.equals(floor)) {
             isInCall = true;
 //            floor = MyApplication.getInstance().getResources().getString(R.string.in_elevator);
         } else {
