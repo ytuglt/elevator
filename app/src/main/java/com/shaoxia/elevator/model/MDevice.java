@@ -1,12 +1,7 @@
 package com.shaoxia.elevator.model;
 
 import android.bluetooth.BluetoothDevice;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
 
-import com.shaoxia.elevator.MyApplication;
-import com.shaoxia.elevator.R;
 import com.shaoxia.elevator.log.Logger;
 
 import java.io.Serializable;

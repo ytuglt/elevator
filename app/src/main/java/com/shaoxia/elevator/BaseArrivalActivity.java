@@ -2,6 +2,7 @@ package com.shaoxia.elevator;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.View;
 import android.widget.TextView;
 
 import com.shaoxia.elevator.log.Logger;
@@ -60,12 +61,41 @@ public abstract class BaseArrivalActivity extends BaseActivity {
         TextView tvFour = findViewById(R.id.floor_four);
         TextView tvFive = findViewById(R.id.floor_five);
 
-        List<String> floors = getFloors();
-        tvOne.setText(floors.get(0));
-        tvTwo.setText(floors.get(1));
-        tvThree.setText(floors.get(2));
-        tvFour.setText(floors.get(3));
-        tvFive.setText(floors.get(4));
+        List<String> floors;
+        List<String> allFloors = mDevice.getFloors();
+        if (allFloors.size() >= 5) {
+            floors = getFloors();
+            tvOne.setText(floors.get(0));
+            tvTwo.setText(floors.get(1));
+            tvThree.setText(floors.get(2));
+            tvFour.setText(floors.get(3));
+            tvFive.setText(floors.get(4));
+        } else {
+            floors = allFloors;
+            switch (allFloors.size()) {
+                case 2:
+                    tvOne.setText(floors.get(0));
+                    tvTwo.setText(floors.get(1));
+                    tvThree.setVisibility(View.GONE);
+                    tvFour.setVisibility(View.GONE);
+                    tvFive.setVisibility(View.GONE);
+                    break;
+                case 3:
+                    tvOne.setText(floors.get(0));
+                    tvTwo.setText(floors.get(1));
+                    tvThree.setText(floors.get(2));
+                    tvFour.setVisibility(View.GONE);
+                    tvFive.setVisibility(View.GONE);
+                    break;
+                case 4:
+                    tvOne.setText(floors.get(0));
+                    tvTwo.setText(floors.get(1));
+                    tvThree.setText(floors.get(2));
+                    tvFour.setText(floors.get(3));
+                    tvFive.setVisibility(View.GONE);
+                    break;
+            }
+        }
 
         int pos = floors.indexOf(mDevice.getFloors().get(getLightPos()));
         switch (pos) {
@@ -92,6 +122,7 @@ public abstract class BaseArrivalActivity extends BaseActivity {
         textView.setTextColor(getResources().getColor(R.color.floor_light, null));
         textView.setShadowLayer(40, 0, 0, getResources().getColor(R.color.floor_light, null));
     }
+
     protected abstract int getLightPos();
 
     private List<String> getFloors() {

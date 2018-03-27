@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -92,11 +93,31 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
     }
 
     private void updateFloors() {
-        List<String> floors = getFloors();
-        mTvOne.setText(floors.get(0));
-        mTvTwo.setText(floors.get(1));
-        mTvThree.setText(floors.get(2));
-        mTvFour.setText(floors.get(3));
+        List<String> floors;
+        List<String> allFloors = mDevice.getFloors();
+        if (allFloors.size() >= 4) {
+            floors = getFloors();
+            mTvOne.setText(floors.get(0));
+            mTvTwo.setText(floors.get(1));
+            mTvThree.setText(floors.get(2));
+            mTvFour.setText(floors.get(3));
+        } else {
+            floors = allFloors;
+            switch (allFloors.size()) {
+                case 2:
+                    mTvOne.setText(floors.get(0));
+                    mTvTwo.setText(floors.get(1));
+                    mTvThree.setVisibility(View.GONE);
+                    mTvFour.setVisibility(View.GONE);
+                    break;
+                case 3:
+                    mTvOne.setText(floors.get(0));
+                    mTvTwo.setText(floors.get(1));
+                    mTvThree.setText(floors.get(2));
+                    mTvFour.setVisibility(View.GONE);
+                    break;
+            }
+        }
 
         int pos = floors.indexOf(mDevice.getFloors().get(getLightPos()));
         switch (pos) {

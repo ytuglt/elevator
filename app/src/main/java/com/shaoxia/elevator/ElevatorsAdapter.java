@@ -260,7 +260,7 @@ public class ElevatorsAdapter extends PagerAdapter {
                         Logger.e(TAG, "onClick: devices is null");
                         return;
                     }
-                    if (mDevice.getFloors().size() < 4) {
+                    if (mDevice.getFloors().size() < 2) {
                         Logger.e(TAG, "onClick: Floors is less then 4");
                         Toast.makeText(mContext, "Floors is less then 4", Toast.LENGTH_SHORT).show();
                         return;
