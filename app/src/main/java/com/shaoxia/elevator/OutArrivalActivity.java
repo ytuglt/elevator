@@ -18,7 +18,7 @@ import com.shaoxia.elevator.model.MDevice;
 
 public class OutArrivalActivity extends BaseArrivalActivity implements BleScanManager.OnStopScanListener {
     private static final String TAG = "OutArrivalActivity";
-    private static final int SCANTIME = 30000;
+    private static final int SCANTIME = 600000;
 
     private BleScanManager mBleScanManager;
 
