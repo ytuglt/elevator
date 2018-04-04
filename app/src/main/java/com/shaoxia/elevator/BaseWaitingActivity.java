@@ -24,7 +24,7 @@ import java.util.List;
 public abstract class BaseWaitingActivity extends BaseActivity implements BleComManager.OnComListener {
     private static final String TAG = "BaseWaitingActivity";
 
-    private static final int QUERY_INTERVAL = 5000;
+    private static final int QUERY_INTERVAL = 1000;
 
     protected MDevice mDevice;
     protected boolean mIsUp;

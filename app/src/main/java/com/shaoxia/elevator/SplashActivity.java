@@ -59,15 +59,22 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
                         Logger.d(TAG, "run: device is not elevator");
                         return;
                     }
-                    Logger.d(TAG, "run: add device" + mDev.getDevName());
+
+                    if (mDev.isInCall()) {
+                        Logger.d(TAG, "run: device is COP elevator");
+                        return;
+                    }
 
                     //TODO
                     if (mDevices.contains(mDev)) {
                         return;
                     }
                     if (mDev.getDevName() == null) {
+                        Logger.d(TAG, "run: device name is null");
                         return;
                     }
+
+                    Logger.d(TAG, "run: add device" + mDev.getDevName());
                     //TODO
                     mDevices.add(mDev);
                     updateAdapter();
