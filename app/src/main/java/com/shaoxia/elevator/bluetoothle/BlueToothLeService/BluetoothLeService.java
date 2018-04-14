@@ -104,6 +104,9 @@ public class BluetoothLeService extends Service {
     public final static String ACTION_GATT_CHARACTERISTIC_WRITE_SUCCESS =
             "com.usr.bluetooth.le.ACTION_GATT_CHARACTERISTIC_SUCCESS";
 
+    public final static String ACTION_GATT_MTU_CHANGE_SUCCESS =
+            "com.usr.bluetooth.le.ACTION_GATT_MTU_CHANGE_SUCCESS";
+
     /**
      * Connection status Constants
      */
@@ -527,6 +530,7 @@ public class BluetoothLeService extends Service {
              * Sending lots of data is possible, but usually ends up being less efficient than classic
              * Bluetooth when trying to achieve maximum throughput.
              */
+            Logger.d(TAG, "onCharacteristicChanged:  -------------------> changed");
             System.out.println("onCharacteristicChanged -------------------> changed");
             //notify 会回调用此方法
             broadcastNotifyUpdate(characteristic);
@@ -538,7 +542,12 @@ public class BluetoothLeService extends Service {
             System.out.println("onMtuChanged-------------------->size:" + mtu);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 System.out.println("onMtuChanged-------------------->设置成功");
+                Logger.d(TAG, "onMtuChanged: -------------------->设置成功");
+            } else {
+                Logger.d(TAG, "onMtuChanged: -------------------->设置失败");
             }
+            Intent intent = new Intent(ACTION_GATT_MTU_CHANGE_SUCCESS);
+            mContext.sendBroadcast(intent);
         }
     };
     private final IBinder mBinder = new LocalBinder();
@@ -938,8 +947,11 @@ public class BluetoothLeService extends Service {
      */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static boolean requestMtu(int mtu) {
+        Logger.d(TAG, "requestMtu: ");
         if (mBluetoothGatt != null) {
-            return mBluetoothGatt.requestMtu(mtu);
+            boolean result = mBluetoothGatt.requestMtu(mtu);
+            Logger.d(TAG, "requestMtu: result : " + result);
+            return result;
         }
         return false;
     }

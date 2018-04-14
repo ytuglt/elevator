@@ -205,6 +205,7 @@ public class Utils {
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CHARACTERISTIC_ERROR);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CHARACTERISTIC_WRITE_SUCCESS);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DESCRIPTORWRITE_RESULT);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_MTU_CHANGE_SUCCESS);
         return intentFilter;
     }
 

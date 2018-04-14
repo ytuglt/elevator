@@ -9,16 +9,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
-import android.widget.Toast;
 
-import com.shaoxia.elevator.BaseBleComActivity;
 import com.shaoxia.elevator.bluetoothle.BlueToothLeService.BluetoothLeService;
 import com.shaoxia.elevator.bluetoothle.utils.Constants;
 import com.shaoxia.elevator.bluetoothle.utils.GattAttributes;
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.utils.Configure;
 import com.shaoxia.elevator.utils.StringUtils;
+import com.shaoxia.elevator.utils.SystemUtils;
 
 import java.util.List;
 
@@ -147,7 +145,10 @@ public class BleComManager {
                 .equals(action)) {
 //                mHander.removeCallbacks(dismssDialogRunnable);
 //                progressDialog.dismiss();
+            requestMtu();
             prepareGattServices(BluetoothLeService.getSupportedGattServices());
+        } else if (BluetoothLeService.ACTION_GATT_MTU_CHANGE_SUCCESS.equals(action)) {
+            writeData();
         } else if (action.equals(BluetoothLeService.ACTION_GATT_DISCONNECTED) ||
                 action.equals("android.bluetooth.device.action.ACL_DISCONNECTED")) {
 //                progressDialog.dismiss();
@@ -161,6 +162,16 @@ public class BleComManager {
             }
         }
 
+    }
+
+    private static void requestMtu() {
+        if (SystemUtils.isLOrLater()) {
+            if (BluetoothLeService.requestMtu(512)) {
+                Logger.d(TAG, "requestMtu: Max transmittal data is {512}");
+            } else {
+                Logger.d(TAG, "requestMtu: Max transmittal data is {20}");
+            }
+        }
     }
 
     private void prepareGattServices(List<BluetoothGattService> gattServices) {
@@ -189,7 +200,7 @@ public class BleComManager {
                     }
                 }
 //                sendQueryData();
-                writeData();
+//                writeData();
             }
         }
     }
