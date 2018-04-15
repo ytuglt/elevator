@@ -40,6 +40,8 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
 
     protected boolean mIsComunicating;
 
+    protected TextView mTitleView;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,11 +49,10 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
 
         initIntentData();
 
-        String title = getIntent().getStringExtra("title");
-        TextView titleView = findViewById(R.id.elevator_title);
-        titleView.setText(title);
-
         getUpOrDown();
+
+        mTitleView = findViewById(R.id.elevator_title);
+        initTitleView();
 
         updateAnimView();
 
@@ -63,6 +64,11 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
         mHandler = new Handler();
 
         call();
+    }
+
+    protected void initTitleView() {
+        String title = getIntent().getStringExtra("title");
+        mTitleView.setText(title);
     }
 
     private void initIntentData() {

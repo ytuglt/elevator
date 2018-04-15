@@ -19,6 +19,13 @@ public class InWaitingActivity extends BaseWaitingActivity {
     private byte mRealFloor = 0;
 
     @Override
+    protected void initTitleView() {
+        String title = mCopDevice.getElevatorId() + getResources().getString(R.string.elevator_id_unit) +
+                getResources().getString(R.string.in_elevator);
+        mTitleView.setText(title);
+    }
+
+    @Override
     protected void getUpOrDown() {
         mIsUp = getIntent().getBooleanExtra("isUp", true);
         Logger.d(TAG, "getUpOrDown: mIsUp = " + mIsUp);

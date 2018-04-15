@@ -18,8 +18,6 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-//        mContext = getApplicationContext();
-
         // TODO
         mInstance = this;
         // 初始化文件目录
@@ -28,10 +26,6 @@ public class MyApplication extends Application {
         AppUncaughtExceptionHandler crashHandler = AppUncaughtExceptionHandler.getInstance();
         crashHandler.init(getApplicationContext());
     }
-
-//    public static Context getInstance() {
-//        return mContext;
-//    }
 
     private static MyApplication mInstance = null;
 

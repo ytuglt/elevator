@@ -1,10 +1,8 @@
 package com.shaoxia.elevator;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.shaoxia.elevator.log.Logger;
 
@@ -27,6 +25,19 @@ public class InArrivalActivity extends BaseArrivalActivity {
                 finish();
             }
         }, WAITINGTIME);
+    }
+
+    @Override
+    protected void initTitleView() {
+        String floor = "";
+        if (mDesPos < mDevice.getFloors().size() && mDesPos >= 0) {
+            floor = mDevice.getFloors().get(mDesPos);
+        } else {
+            Logger.d(TAG, "initTitleView: mDesPos is out of floors");
+        }
+        String title = mElevatorId + getResources().getString(R.string.elevator_id_unit) +
+                floor + getResources().getString(R.string.floor_unit);
+        mTitleView.setText(title);
     }
 
     @Override

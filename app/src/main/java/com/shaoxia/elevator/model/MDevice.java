@@ -2,6 +2,8 @@ package com.shaoxia.elevator.model;
 
 import android.bluetooth.BluetoothDevice;
 
+import com.shaoxia.elevator.MyApplication;
+import com.shaoxia.elevator.R;
 import com.shaoxia.elevator.log.Logger;
 
 import java.io.Serializable;
@@ -75,7 +77,7 @@ public class MDevice implements Serializable {
         elevatorId = devName.substring(4, 7);
         if (INCALLID.equals(floor)) {
             isInCall = true;
-//            floor = MyApplication.getInstance().getResources().getString(R.string.in_elevator);
+            floor = MyApplication.getInstance().getResources().getString(R.string.in_elevator);
         } else {
             isInCall = false;
         }

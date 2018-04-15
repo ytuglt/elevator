@@ -35,7 +35,9 @@ public abstract class BaseArrivalActivity extends BaseActivity {
         setContentView(R.layout.activity_arrival);
         initData();
 
+        mTitleView = findViewById(R.id.elevator_title);
         initTitleView();
+
         updateFloorsView();
 
     }
@@ -47,10 +49,9 @@ public abstract class BaseArrivalActivity extends BaseActivity {
         mIsUp = getIntent().getBooleanExtra("isUp", true);
     }
 
-    private void initTitleView() {
+    protected void initTitleView() {
         String title = mElevatorId + getResources().getString(R.string.elevator_id_unit) +
                 mDevice.getFloor() + getResources().getString(R.string.floor_unit);
-        mTitleView = findViewById(R.id.elevator_title);
         mTitleView.setText(title);
     }
 
