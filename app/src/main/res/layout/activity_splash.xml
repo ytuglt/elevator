@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/background">
 
     <View
         android:id="@+id/splash"
@@ -13,6 +14,18 @@
         android:id="@+id/elevator_viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/scanning"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@drawable/button_background"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:text="Scanning,please wait..."
+        android:textColor="@color/btn_call_color"
+        android:textSize="32dp"
         android:visibility="gone"/>
 
 </FrameLayout>

@@ -83,6 +83,8 @@ public class WheelView<T> extends ListView implements IWheelView<T> {
 
     private OnWheelItemClickListener<T> mOnWheelItemClickListener;
 
+    private boolean mIsScrolling = false;
+
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -103,6 +105,10 @@ public class WheelView<T> extends ListView implements IWheelView<T> {
             }
         }
     };
+
+    public boolean isScrolling() {
+        return mIsScrolling;
+    }
 
     private OnItemClickListener mOnItemClickListener = new OnItemClickListener() {
         @Override
@@ -125,6 +131,7 @@ public class WheelView<T> extends ListView implements IWheelView<T> {
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
             if (scrollState == SCROLL_STATE_IDLE) {
+                mIsScrolling = false;
                 View itemView = getChildAt(0);
                 if (itemView != null) {
                     float deltaY = itemView.getY();
@@ -141,6 +148,8 @@ public class WheelView<T> extends ListView implements IWheelView<T> {
                                 .WHEEL_SMOOTH_SCROLL_DURATION);
                     }
                 }
+            } else {
+                mIsScrolling = true;
             }
         }
 

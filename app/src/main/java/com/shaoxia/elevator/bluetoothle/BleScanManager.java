@@ -63,11 +63,13 @@ public class BleScanManager {
      */
     public void startScan() {
         Logger.d(TAG, "startScan: ");
-        if (mBleManger !=null && mBleManger.isScanning()) {
-            Logger.d(TAG, "startScan: mBleManger is scanning");
-            stopScan();
+        if (mBleManger != null) {
+            if (mBleManger.isScanning()) {
+                Logger.d(TAG, "startScan: mBleManger is scanning");
+                stopScan();
+            }
         }
-        BleHelper.disconnectDevice();
+//        BleHelper.disconnectDevice();
         BleManger.getInstance().setBleState(BleManger.State.SCANNING);
         scanPrevious21Version();
     }

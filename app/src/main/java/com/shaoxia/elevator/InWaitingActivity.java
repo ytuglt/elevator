@@ -2,7 +2,6 @@ package com.shaoxia.elevator;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.model.MDevice;
@@ -62,6 +61,7 @@ public class InWaitingActivity extends BaseWaitingActivity {
 
     @Override
     protected void getStatus() {
+        Logger.d(TAG, "getStatus: ");
         if (mIsComunicating) {
             Logger.d(TAG, "getStatus: is comunicating");
             return;
@@ -104,6 +104,7 @@ public class InWaitingActivity extends BaseWaitingActivity {
     @Override
     protected void parseData(byte[] array) {
         if (array[1] == (byte) 0x00) {
+            mBleComManager.destroy();
             Logger.d(TAG, "parseData: light turn off");
             Intent intent = new Intent(this, InArrivalActivity.class);
             Bundle bundle = new Bundle();

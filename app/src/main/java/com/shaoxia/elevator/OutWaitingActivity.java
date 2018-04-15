@@ -28,6 +28,8 @@ public class OutWaitingActivity extends BaseWaitingActivity {
             return;
         }
         int curpos = floors.indexOf(mDevice.getFloor());
+        Logger.d(TAG, "getUpOrDown: mDesPos = " + mDesPos + ",curpos =" + curpos
+                + ",mDevice.getFloor() =" + mDevice.getFloor());
         mIsUp = (mDesPos < curpos);
         Logger.d(TAG, "getUpOrDown: mIsUp = " + mIsUp);
     }
@@ -104,7 +106,7 @@ public class OutWaitingActivity extends BaseWaitingActivity {
         }
 
         if (isOff) {
-            mBleComManager.disconnect();
+//            mBleComManager.disconnect();
             mBleComManager.destroy();
             Intent intent = new Intent(this, OutArrivalActivity.class);
             Bundle bundle = new Bundle();

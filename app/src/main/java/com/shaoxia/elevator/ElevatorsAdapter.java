@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -160,10 +161,7 @@ public class ElevatorsAdapter extends PagerAdapter {
             if (mDevice.getElevatorId() == null || mDevice.getFloor() == null) {
                 text = "A梯1层";
             } else {
-                text = mDevice.getElevatorId()
-                        + mContext.getResources().getString(R.string.elevator_id_unit)
-                        + mDevice.getFloor()
-                        + mContext.getResources().getString(R.string.floor_unit);
+                text = mDevice.getFloorTitle(mContext);
             }
             mTitle.setText(text);
         }
@@ -225,7 +223,7 @@ public class ElevatorsAdapter extends PagerAdapter {
             if (mFloolWheelView != null && mFloors != null && mDevice != null) {
                 int selection = mFloolWheelView.getSelection();
                 int foorIndex = mFloors.indexOf(mDevice.getFloor());
-                enable = (selection == foorIndex);
+                enable = (selection != foorIndex);
             }
             Logger.d(TAG, "updateCallView no param: enable = " + enable + ";mEnableCall " + mEnableCall);
             enable = (enable && mEnableCall);
@@ -256,6 +254,10 @@ public class ElevatorsAdapter extends PagerAdapter {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.btn_call:
+                    if (mFloolWheelView.isScrolling()) {
+                        Logger.d(TAG, "onClick: mFloolWheelView is scrolling");
+                        return;
+                    }
                     if (mDevice == null) {
                         Logger.e(TAG, "onClick: devices is null");
                         return;
@@ -272,6 +274,7 @@ public class ElevatorsAdapter extends PagerAdapter {
                     intent.putExtras(bundle);//发送数据
 //                intent.putExtra("device", mDevice);
                     intent.putExtra("title", mTitle.getText());
+                    Logger.d(TAG, "onClick: mSelPosition =" + mSelPosition);
                     intent.putExtra("despos", mSelPosition);
                     mContext.startActivity(intent);
                     break;

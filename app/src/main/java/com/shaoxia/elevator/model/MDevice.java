@@ -1,6 +1,7 @@
 package com.shaoxia.elevator.model;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 
 import com.shaoxia.elevator.MyApplication;
 import com.shaoxia.elevator.R;
@@ -151,6 +152,21 @@ public class MDevice implements Serializable {
 
     public void setFloorsMap(Map<String, Byte> mFloorsMap) {
         this.mFloorsMap = mFloorsMap;
+    }
+
+    public String getFloorTitle(Context context) {
+        String text;
+        if (isInCall) {
+            text = getElevatorId()
+                    + context.getResources().getString(R.string.elevator_id_unit)
+                    + context.getResources().getString(R.string.in_elevator);
+        } else {
+            text = getElevatorId()
+                    + context.getResources().getString(R.string.elevator_id_unit)
+                    + getFloor()
+                    + context.getResources().getString(R.string.floor_unit);
+        }
+        return text;
     }
 
     @Override

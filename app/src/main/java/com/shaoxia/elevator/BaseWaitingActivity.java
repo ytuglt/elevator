@@ -24,7 +24,7 @@ import java.util.List;
 public abstract class BaseWaitingActivity extends BaseActivity implements BleComManager.OnComListener {
     private static final String TAG = "BaseWaitingActivity";
 
-    private static final int QUERY_INTERVAL = 1000;
+    private static final int QUERY_INTERVAL = 100;
 
     protected MDevice mDevice;
     protected boolean mIsUp;
@@ -45,6 +45,7 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logger.d(TAG, "onCreate: ");
         setContentView(R.layout.activity_call_out);
 
         initIntentData();
@@ -184,14 +185,20 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
     @Override
     protected void onResume() {
         super.onResume();
+        Logger.d(TAG, "onResume: ");
+        mBleComManager = BleComManager.getInstance(this);
+        mBleComManager.setOnComListener(this);
         getStatus();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        Logger.d(TAG, "onPause: ");
         if (mBleComManager != null) {
+            mIsComunicating = false;
             mBleComManager.disconnect();
+            mBleComManager.destroy();
         }
     }
 
@@ -200,9 +207,9 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
         super.onDestroy();
         Logger.d(TAG, "onDestroy: ");
         mIsComunicating = false;
-        if (mBleComManager != null) {
-            mBleComManager.destroy();
-        }
+//        if (mBleComManager != null) {
+//            mBleComManager.destroy();
+//        }
     }
 
     protected abstract void call();
@@ -244,7 +251,9 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
     @Override
     public void onReceiveData(byte[] array) {
         Logger.d(TAG, "onReceiveData: " + StringUtils.ByteArraytoHex(array));
-
+        if (mBleComManager != null) {
+            mBleComManager.disconnect();
+        }
         if (!checkData(array)) {
             Log.d(TAG, "onReceiveData: checkdata errror");
             return;

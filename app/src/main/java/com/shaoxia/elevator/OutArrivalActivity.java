@@ -18,7 +18,7 @@ import com.shaoxia.elevator.model.MDevice;
 
 public class OutArrivalActivity extends BaseArrivalActivity implements BleScanManager.OnStopScanListener {
     private static final String TAG = "OutArrivalActivity";
-    private static final int SCANTIME = 600000;
+    private static final int SCANTIME = 20000;
 
     private BleScanManager mBleScanManager;
 
@@ -66,7 +66,6 @@ public class OutArrivalActivity extends BaseArrivalActivity implements BleScanMa
     protected int getLightPos() {
         return mDevice.getFloors().indexOf(mDevice.getFloor());
     }
-
 
     @Override
     protected void onResume() {

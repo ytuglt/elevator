@@ -42,6 +42,7 @@ public class BleComManager {
     public BleComManager(Context context) {
         mContext = context;
         mHander = new Handler();
+        Logger.d(TAG, "BleComManager: register mGattUpdateReceiver");
         BleHelper.initBroadcast(context, mGattUpdateReceiver);
     }
 
@@ -190,7 +191,7 @@ public class BleComManager {
                     Logger.d(TAG, "prepareGattServices: property : " + BleHelper.getPorperties(mContext, c));
                     if (BleHelper.getPorperties(mContext, c).equals("Notify")) {
                         notifyCharacteristic = c;
-//                        prepareBroadcastDataNotify(notifyCharacteristic);
+                        BleHelper.prepareBroadcastDataNotify(notifyCharacteristic);
                         continue;
                     }
 
@@ -208,6 +209,7 @@ public class BleComManager {
     private void writeData() {
         Logger.d(TAG, "writeData: " + StringUtils.ByteArraytoHex(mSendData));
         BleHelper.writeCharacteristic(writeCharacteristic, mSendData);
+        Logger.d(TAG, "writeData: post stopConnectRunnable");
         mHander.postDelayed(stopConnectRunnable, Configure.DEFAULT_CONNECT_TIME);
     }
 
@@ -242,6 +244,7 @@ public class BleComManager {
     public void disconnect() {
         Logger.d(TAG, "disconnect: ");
         if (mHander != null) {
+            Logger.d(TAG, "disconnect: remove stopConnectRunnable");
             mHander.removeCallbacks(stopConnectRunnable);
         }
         BleHelper.stopBroadcastDataNotify(notifyCharacteristic);
@@ -269,9 +272,10 @@ public class BleComManager {
     public void destroy() {
         Logger.d(TAG, "destroy: ");
         if (mContext != null) {
+            Logger.d(TAG, "destroy: unregisterReceiver mGattUpdateReceiver");
             mContext.unregisterReceiver(mGattUpdateReceiver);
         }
-//        disconnect();
+        disconnect();
         mContext = null;
         mInstance = null;
         mHander = null;

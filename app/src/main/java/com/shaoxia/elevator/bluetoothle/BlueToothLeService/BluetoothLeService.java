@@ -144,11 +144,12 @@ public class BluetoothLeService extends Service {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status,
                                             int newState) {
-
+            Logger.d(TAG, "onConnectionStateChange: ");
             String intentAction;
             // GATT Server connected
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 System.out.println("---------------------------->已经连接");
+                Logger.d(TAG, "onConnectionStateChange:---------------------------->已经连接 ");
                 intentAction = ACTION_GATT_CONNECTED;
                 mConnectionState = STATE_CONNECTED;
                 broadcastConnectionUpdate(intentAction);
@@ -157,6 +158,8 @@ public class BluetoothLeService extends Service {
             // GATT Server disconnected
             else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 System.out.println("---------------------------->连接断开");
+                Logger.d(TAG, "onConnectionStateChange:---------------------------->连接断开 ");
+
                 intentAction = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED;
                 broadcastConnectionUpdate(intentAction);
@@ -165,6 +168,8 @@ public class BluetoothLeService extends Service {
             // GATT Server disconnected
             else if (newState == BluetoothProfile.STATE_DISCONNECTING) {
                 System.out.println("---------------------------->正在连接");
+                Logger.d(TAG, "onConnectionStateChange:---------------------------->正在连接 ");
+
 //                intentAction = ACTION_GATT_DISCONNECTING;
 //                mConnectionState = STATE_DISCONNECTING;
 //                broadcastConnectionUpdate(intentAction);
@@ -177,6 +182,7 @@ public class BluetoothLeService extends Service {
             //发现新的服务
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 System.out.println("---------------------------->发现服务");
+                Logger.d(TAG, "onServicesDiscovered: ---------------------------->发现服务");
                 broadcastConnectionUpdate(ACTION_GATT_SERVICES_DISCOVERED);
             } else {
 
@@ -812,8 +818,10 @@ public class BluetoothLeService extends Service {
     }
 
     public static void discoverServices() {
+        Logger.d(TAG, "discoverServices: ");
         // Logger.datalog(mContext.getResources().getString(R.string.dl_service_discover_request));
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Logger.d(TAG, "discoverServices: mBluetoothAdapter or mBluetoothGatt is null");
             return;
         } else {
             mBluetoothGatt.discoverServices();
@@ -1049,5 +1057,4 @@ public class BluetoothLeService extends Service {
             return BluetoothLeService.this;
         }
     }
-
 }
