@@ -103,6 +103,10 @@ public class BleHelper {
         BluetoothLeService.connect(address, name, context);
     }
 
+    public static boolean isDisconnected() {
+        return BluetoothLeService.getConnectionState() == BluetoothLeService.STATE_DISCONNECTED;
+    }
+
     public static String getPorperties(Context context, BluetoothGattCharacteristic item) {
         return Utils.getPorperties(context, item);
     }

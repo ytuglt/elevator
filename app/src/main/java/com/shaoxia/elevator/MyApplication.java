@@ -20,11 +20,11 @@ public class MyApplication extends Application {
         super.onCreate();
         // TODO
         mInstance = this;
-        // 初始化文件目录
-        SdcardConfig.getInstance().initSdcard();
-        // 捕捉异常
-        AppUncaughtExceptionHandler crashHandler = AppUncaughtExceptionHandler.getInstance();
-        crashHandler.init(getApplicationContext());
+//        // 初始化文件目录
+//        SdcardConfig.getInstance().initSdcard();
+//        // 捕捉异常
+//        AppUncaughtExceptionHandler crashHandler = AppUncaughtExceptionHandler.getInstance();
+//        crashHandler.init(getApplicationContext());
     }
 
     private static MyApplication mInstance = null;

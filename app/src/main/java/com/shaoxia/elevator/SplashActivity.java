@@ -3,6 +3,7 @@ package com.shaoxia.elevator;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -127,7 +128,6 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         mBleComManager = BleComManager.getInstance(this);
         mBleComManager.setOnComListener(this);
 
-        mBleComManager.disconnect();
         startScan();
     }
 
@@ -219,6 +219,8 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
 //        }
     }
 
+    private boolean mHasReceiveData = false;
+
     private void getFloorInfo(int position) {
         Logger.d(TAG, "getFloorInfo: ");
         if (mIsComunicating) {
@@ -237,6 +239,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         cmd[1] = (byte) 0x00;
         cmd[2] = (byte) 0xb4;
         mBleComManager.sendData(cmd);
+        mHasReceiveData = false;
     }
 
     private boolean mIsComunicating;
@@ -280,7 +283,25 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             mViewPager.setPagingEnabled(true);
         }
 //        Toast.makeText(this, "断开连接", Toast.LENGTH_SHORT).show();
+        if (!mHasReceiveData) {
+            Logger.d(TAG, "onBleDisconnected: not receive data , reget");
+            if (mHander == null) {
+                mHander = new Handler();
+            }
+            mHander.postDelayed(reGetFloorsRunnable, 5000);
+
+        }
     }
+
+    private Handler mHander;
+    private Runnable reGetFloorsRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            getFloorInfo(mCurPosition);
+        }
+    };
+
 
     @Override
     public void onConnectFailed() {
@@ -294,6 +315,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
 
     @Override
     public void onReceiveData(byte[] array) {
+        mHasReceiveData = true;
         Logger.d(TAG, "onReceiveData: data:" + StringUtils.ByteArraytoHex(array));
 
         if (array == null && array.length < 2) {
@@ -398,6 +420,9 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         if (mCurPosition == position) {
             Logger.d(TAG, "onPageChanged: same position");
             return;
+        }
+        if (mHander != null) {
+            mHander.removeCallbacks(reGetFloorsRunnable);
         }
         mCurPosition = position;
         getFloorInfo(position);

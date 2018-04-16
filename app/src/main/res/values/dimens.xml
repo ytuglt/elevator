@@ -6,4 +6,6 @@
     <dimen name="floor_text_size">20dp</dimen>
 
     <dimen name="call_margin_bottom">40dp</dimen>
+    <dimen name="floor_margin">15dp</dimen>
+    <dimen name="floor_diameter">65dp</dimen>
 </resources>

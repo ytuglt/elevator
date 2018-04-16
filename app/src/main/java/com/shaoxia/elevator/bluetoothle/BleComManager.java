@@ -150,8 +150,11 @@ public class BleComManager {
             prepareGattServices(BluetoothLeService.getSupportedGattServices());
         } else if (BluetoothLeService.ACTION_GATT_MTU_CHANGE_SUCCESS.equals(action)) {
             writeData();
-        } else if (action.equals(BluetoothLeService.ACTION_GATT_DISCONNECTED) ||
-                action.equals("android.bluetooth.device.action.ACL_DISCONNECTED")) {
+        } else if (action.equals(BluetoothLeService.ACTION_GATT_DISCONNECTED)){
+//                ||
+//                action.equals("android.bluetooth.device.action.ACL_DISCONNECTED")) {
+
+
 //                progressDialog.dismiss();
             //connect break (连接断开)
 //                showDialog(getString(R.string.conn_disconnected_home));
@@ -191,7 +194,7 @@ public class BleComManager {
                     Logger.d(TAG, "prepareGattServices: property : " + BleHelper.getPorperties(mContext, c));
                     if (BleHelper.getPorperties(mContext, c).equals("Notify")) {
                         notifyCharacteristic = c;
-                        BleHelper.prepareBroadcastDataNotify(notifyCharacteristic);
+//                        BleHelper.prepareBroadcastDataNotify(notifyCharacteristic);
                         continue;
                     }
 
@@ -210,6 +213,7 @@ public class BleComManager {
         Logger.d(TAG, "writeData: " + StringUtils.ByteArraytoHex(mSendData));
         BleHelper.writeCharacteristic(writeCharacteristic, mSendData);
         Logger.d(TAG, "writeData: post stopConnectRunnable");
+        mHander.removeCallbacks(stopConnectRunnable);
         mHander.postDelayed(stopConnectRunnable, Configure.DEFAULT_CONNECT_TIME);
     }
 
@@ -238,6 +242,7 @@ public class BleComManager {
             mOnComListener.onCommunicating();
         }
         mSendData = array;
+        mHander.postDelayed(stopConnectRunnable, 10000);
         BleHelper.connectDevice(mContext, mDevAddress, mDevName);
     }
 
@@ -275,6 +280,7 @@ public class BleComManager {
             Logger.d(TAG, "destroy: unregisterReceiver mGattUpdateReceiver");
             mContext.unregisterReceiver(mGattUpdateReceiver);
         }
+//        BluetoothLeService.refreshDeviceCache();
         disconnect();
         mContext = null;
         mInstance = null;

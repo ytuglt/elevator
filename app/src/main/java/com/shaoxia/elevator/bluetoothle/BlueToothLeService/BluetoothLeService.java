@@ -1,6 +1,6 @@
 /*
  * Copyright Cypress Semiconductor Corporation, 2014-2014-2015 All rights reserved.
- * 
+ *
  * This software, associated documentation and materials ("Software") is
  * owned by Cypress Semiconductor Corporation ("Cypress") and is
  * protected by and subject to worldwide patent protection (UnitedStates and foreign), United States copyright laws and international
@@ -9,7 +9,7 @@
  * modification, translation, compilation, or representation of this
  * Software in any other form (e.g., paper, magnetic, optical, silicon)
  * is prohibited without Cypress's express written permission.
- * 
+ *
  * Disclaimer: THIS SOFTWARE IS PROVIDED AS-IS, WITH NO WARRANTY OF ANY
  * KIND, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,
  * NONINFRINGEMENT, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -23,11 +23,11 @@
  * Cypress's product in a High Risk Product, the manufacturer of such
  * system or application assumes all risk of such use and in doing so
  * indemnifies Cypress against all liability.
- * 
+ *
  * Use of this Software may be limited by and subject to the applicable
  * Cypress software license agreement.
- * 
- * 
+ *
+ *
  */
 
 package com.shaoxia.elevator.bluetoothle.BlueToothLeService;
@@ -159,6 +159,8 @@ public class BluetoothLeService extends Service {
             else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 System.out.println("---------------------------->连接断开");
                 Logger.d(TAG, "onConnectionStateChange:---------------------------->连接断开 ");
+
+                mBluetoothGatt.close();
 
                 intentAction = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED;
@@ -813,8 +815,23 @@ public class BluetoothLeService extends Service {
         if (mConnectionState == STATE_CONNECTED) {
             //  Logger.datalog(mContext.getResources().getString(R.string.dl_device_connecting));
             mBluetoothGatt.disconnect();
-            mBluetoothGatt.close();
+//            mBluetoothGatt.close();
         }
+    }
+
+    public synchronized static boolean refreshDeviceCache() {
+        try {
+            final Method refresh = BluetoothGatt.class.getMethod("refresh");
+            if (refresh != null) {
+                boolean success = (Boolean) refresh.invoke(mBluetoothGatt);
+                Logger.d(TAG, "refreshDeviceCache, is success:  " + success);
+                return success;
+            }
+        } catch (Exception e) {
+            Logger.d(TAG, "exception occur while refreshing device: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public static void discoverServices() {
@@ -824,7 +841,10 @@ public class BluetoothLeService extends Service {
             Logger.d(TAG, "discoverServices: mBluetoothAdapter or mBluetoothGatt is null");
             return;
         } else {
-            mBluetoothGatt.discoverServices();
+            if (!mBluetoothGatt.discoverServices()) {
+                Logger.d(TAG, "discoverServices: remote service discovery has not been started");
+                disconnect();
+            }
         }
 
     }

@@ -21,8 +21,8 @@
 
         <TextView
             android:id="@+id/floor_one"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="@dimen/floor_diameter"
+            android:layout_height="@dimen/floor_diameter"
             android:background="@drawable/floor_back"
             android:gravity="center"
             android:text="035"
@@ -31,9 +31,9 @@
 
         <TextView
             android:id="@+id/floor_two"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="15dp"
+            android:layout_width="@dimen/floor_diameter"
+            android:layout_height="@dimen/floor_diameter"
+            android:layout_marginTop="@dimen/floor_margin"
             android:background="@drawable/floor_back"
             android:gravity="center"
             android:text="035"
@@ -42,9 +42,9 @@
 
         <TextView
             android:id="@+id/floor_three"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="15dp"
+            android:layout_width="@dimen/floor_diameter"
+            android:layout_height="@dimen/floor_diameter"
+            android:layout_marginTop="@dimen/floor_margin"
             android:background="@drawable/floor_back"
             android:gravity="center"
             android:text="035"
@@ -54,9 +54,9 @@
 
         <TextView
             android:id="@+id/floor_four"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="15dp"
+            android:layout_width="@dimen/floor_diameter"
+            android:layout_height="@dimen/floor_diameter"
+            android:layout_marginTop="@dimen/floor_margin"
             android:background="@drawable/floor_back"
             android:gravity="center"
             android:text="035"
@@ -65,9 +65,9 @@
 
         <TextView
             android:id="@+id/floor_five"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="15dp"
+            android:layout_width="@dimen/floor_diameter"
+            android:layout_height="@dimen/floor_diameter"
+            android:layout_marginTop="@dimen/floor_margin"
             android:background="@drawable/floor_back"
             android:gravity="center"
             android:text="035"

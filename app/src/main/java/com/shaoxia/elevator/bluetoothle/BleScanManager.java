@@ -3,6 +3,7 @@ package com.shaoxia.elevator.bluetoothle;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.utils.Configure;
@@ -68,6 +69,11 @@ public class BleScanManager {
                 Logger.d(TAG, "startScan: mBleManger is scanning");
                 stopScan();
             }
+        }
+
+        if (!BleHelper.isDisconnected()) {
+            Logger.d(TAG, "startScan: ble is not disconnected");
+            BleHelper.disconnectDevice();
         }
 //        BleHelper.disconnectDevice();
         BleManger.getInstance().setBleState(BleManger.State.SCANNING);
