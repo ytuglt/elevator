@@ -104,12 +104,13 @@ public class OutArrivalActivity extends BaseArrivalActivity implements BleScanMa
         Logger.d(TAG, "onFindCopDevice: ");
         Intent intent = new Intent(this, InWaitingActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putSerializable("copdevice", mCopDevice);//序列化
+        bundle.putSerializable(InWaitingActivity.COP_DEVICE_KEY, mCopDevice);//序列化
         bundle.putSerializable("device", mDevice);//序列化
         intent.putExtras(bundle);//发送数据
         intent.putExtra("title", mTitleView.getText().toString());
         intent.putExtra("isUp", mIsUp);
         intent.putExtra("despos", mDesPos);
+        intent.putExtra(InWaitingActivity.ENTER_FROM_KEY, InWaitingActivity.ENTER_FORM_OUTARRIVAL);
         startActivity(intent);
         finish();
     }

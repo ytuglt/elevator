@@ -214,8 +214,12 @@ public class ElevatorsAdapter extends PagerAdapter {
         }
 
         private void updateCallView(boolean enable) {
-            Logger.d(TAG, "updateCallView: enable = " + enable + ";mEnableCall " + mEnableCall);
-            mBtnCall.setEnabled(enable && mEnableCall);
+            if (mDevice.isInCall()) {
+                mBtnCall.setEnabled(mEnableCall);
+            }else {
+                Logger.d(TAG, "updateCallView: enable = " + enable + ";mEnableCall " + mEnableCall);
+                mBtnCall.setEnabled(enable && mEnableCall);
+            }
         }
 
         private void updateCallView() {
@@ -225,10 +229,12 @@ public class ElevatorsAdapter extends PagerAdapter {
                 int foorIndex = mFloors.indexOf(mDevice.getFloor());
                 enable = (selection != foorIndex);
             }
-            Logger.d(TAG, "updateCallView no param: enable = " + enable + ";mEnableCall " + mEnableCall);
-            enable = (enable && mEnableCall);
-            Logger.d(TAG, "updateCallView: enable " + enable);
-            mBtnCall.setEnabled(enable);
+
+            updateCallView(enable);
+//            Logger.d(TAG, "updateCallView no param: enable = " + enable + ";mEnableCall " + mEnableCall);
+//            enable = (enable && mEnableCall);
+//            Logger.d(TAG, "updateCallView: enable " + enable);
+//            mBtnCall.setEnabled(enable);
         }
 
         public void setState(int state) {
@@ -268,14 +274,24 @@ public class ElevatorsAdapter extends PagerAdapter {
                         return;
                     }
 
-                    Intent intent = new Intent(mContext, OutWaitingActivity.class);
+                    Class desClass;
+                    String  deviceKey;
+                    if (mDevice.isInCall()) {
+                        desClass = InWaitingActivity.class;
+                        deviceKey = InWaitingActivity.COP_DEVICE_KEY;
+                    } else {
+                        desClass = OutWaitingActivity.class;
+                        deviceKey = BaseWaitingActivity.DEVICE_KEY;
+                    }
+
+                    Intent intent = new Intent(mContext, desClass);
                     Bundle bundle = new Bundle();
-                    bundle.putSerializable("device", mDevice);//序列化
+                    bundle.putSerializable(deviceKey, mDevice);//序列化
                     intent.putExtras(bundle);//发送数据
-//                intent.putExtra("device", mDevice);
                     intent.putExtra("title", mTitle.getText());
                     Logger.d(TAG, "onClick: mSelPosition =" + mSelPosition);
                     intent.putExtra("despos", mSelPosition);
+                    intent.putExtra(InWaitingActivity.ENTER_FROM_KEY, InWaitingActivity.ENTER_FORM_SPLASH);
                     mContext.startActivity(intent);
                     break;
                 case R.id.refresh:

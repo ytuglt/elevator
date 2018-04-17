@@ -3,6 +3,7 @@ package com.shaoxia.elevator;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +24,8 @@ import java.util.List;
 
 public abstract class BaseWaitingActivity extends BaseActivity implements BleComManager.OnComListener {
     private static final String TAG = "BaseWaitingActivity";
+
+    public static final String DEVICE_KEY = "device";
 
     private static final int QUERY_INTERVAL = 100;
 
@@ -72,22 +75,24 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
         mTitleView.setText(title);
     }
 
-    private void initIntentData() {
+    protected void initIntentData() {
         mDevice = (MDevice) getIntent().getSerializableExtra("device");
         mDesPos = getIntent().getIntExtra("despos", -1);
     }
 
     protected abstract void getUpOrDown();
 
-    private void updateAnimView() {
-        ImageView imageView = findViewById(R.id.img_up);
-
+    protected void updateAnimView() {
         if (mIsUp) {
-            imageView.setImageResource(R.drawable.up_anim);
+            startAnimView(R.drawable.up_anim);
         } else {
-            imageView.setImageResource(R.drawable.down_anim);
+            startAnimView(R.drawable.down_anim);
         }
+    }
 
+    protected void startAnimView(@DrawableRes int resId) {
+        ImageView imageView = findViewById(R.id.img_up);
+        imageView.setImageResource(resId);
         AnimationDrawable animationDrawable = (AnimationDrawable) imageView.getDrawable();
         animationDrawable.start();
     }

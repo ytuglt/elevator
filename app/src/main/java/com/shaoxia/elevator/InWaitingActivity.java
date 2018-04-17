@@ -13,9 +13,24 @@ import com.shaoxia.elevator.utils.VerifyUtils;
 
 public class InWaitingActivity extends BaseWaitingActivity {
     private static final String TAG = "InWaitingActivity";
+
+    public static final String COP_DEVICE_KEY = "copdevice";
+    public static final String ENTER_FROM_KEY = "enter_from";
+
+    public static final int ENTER_FORM_SPLASH = 1;
+    public static final int ENTER_FORM_OUTARRIVAL = 2;
+
     private MDevice mCopDevice;
 
     private byte mRealFloor = 0;
+
+    private int mEnterFrom = ENTER_FORM_OUTARRIVAL;
+
+    @Override
+    protected void initIntentData() {
+        super.initIntentData();
+        mEnterFrom = getIntent().getIntExtra(ENTER_FROM_KEY, ENTER_FORM_OUTARRIVAL);
+    }
 
     @Override
     protected void initTitleView() {
@@ -28,7 +43,10 @@ public class InWaitingActivity extends BaseWaitingActivity {
     protected void getUpOrDown() {
         mIsUp = getIntent().getBooleanExtra("isUp", true);
         Logger.d(TAG, "getUpOrDown: mIsUp = " + mIsUp);
-        mCopDevice = (MDevice) getIntent().getSerializableExtra("copdevice");
+        mCopDevice = (MDevice) getIntent().getSerializableExtra(COP_DEVICE_KEY);
+        if (mEnterFrom == ENTER_FORM_SPLASH) {
+            mDevice = mCopDevice;
+        }
     }
 
     @Override
@@ -57,6 +75,15 @@ public class InWaitingActivity extends BaseWaitingActivity {
         cmd[3] = VerifyUtils.getCheckNum(cmd);
 
         mBleComManager.sendData(cmd);
+    }
+
+    @Override
+    protected void updateAnimView() {
+        if (mEnterFrom == ENTER_FORM_OUTARRIVAL) {
+            super.updateAnimView();
+        } else {
+            startAnimView(R.drawable.up_down_anim);
+        }
     }
 
     @Override
@@ -105,23 +132,24 @@ public class InWaitingActivity extends BaseWaitingActivity {
     protected void parseData(byte[] array) {
         if (array[1] == (byte) 0x00) {
             mBleComManager.destroy();
+            MDevice device;
+
+            if (mEnterFrom == ENTER_FORM_SPLASH) {
+                device = mCopDevice;
+            } else {
+                device = mDevice;
+            }
+
             Logger.d(TAG, "parseData: light turn off");
             Intent intent = new Intent(this, InArrivalActivity.class);
             Bundle bundle = new Bundle();
-            bundle.putSerializable("device", mDevice);//序列化
+            bundle.putSerializable("device", device);//序列化
             intent.putExtras(bundle);//发送数据
             intent.putExtra("despos", mDesPos);
-            intent.putExtra("id", mDevice.getElevatorId());
+            intent.putExtra("id", device.getElevatorId());
             intent.putExtra("isUp", mIsUp);
             startActivity(intent);
             finish();
         }
     }
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        Logger.d(TAG, "onActivityResult: ");
-//        finish();
-//    }
 }
