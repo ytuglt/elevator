@@ -71,6 +71,17 @@
                 android:textColor="@color/floor_unlight"
                 android:textSize="@dimen/floor_text_size" />
 
+            <TextView
+                android:id="@+id/floor_five"
+                android:layout_width="@dimen/floor_diameter"
+                android:layout_height="@dimen/floor_diameter"
+                android:layout_marginTop="@dimen/floor_margin"
+                android:background="@drawable/floor_back"
+                android:gravity="center"
+                android:text="035"
+                android:textColor="@color/floor_unlight"
+                android:textSize="@dimen/floor_text_size" />
+
         </LinearLayout>
 
         <ImageView

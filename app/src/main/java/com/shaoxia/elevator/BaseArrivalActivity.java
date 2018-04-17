@@ -131,26 +131,18 @@ public abstract class BaseArrivalActivity extends BaseActivity {
         List<String> allFloors = mDevice.getFloors();
         int curpos = getLightPos();
 
-        if (mIsUp) {
-            if (curpos - 4 >= 0) {
-                for (int i = curpos - 4; i <= curpos; i++) {
-                    floors.add(allFloors.get(i));
-                }
-            } else {
-                for (int i = 0; i < 5; i++) {
-                    floors.add(allFloors.get(i));
-                }
+        int size = allFloors.size();
+        if (curpos - 2 <= 0) {
+            for (int i = 0; i < 5; i++) {
+                floors.add(allFloors.get(i));
+            }
+        } else if (curpos + 2 >= (size - 1)) {
+            for (int i = size - 5; i < size; i++) {
+                floors.add(allFloors.get(i));
             }
         } else {
-            int size = allFloors.size();
-            if (curpos + 4 < size) {
-                for (int i = curpos; i < size; i++) {
-                    floors.add(allFloors.get(i));
-                }
-            } else {
-                for (int i = size - 5; i < size; i++) {
-                    floors.add(allFloors.get(i));
-                }
+            for (int i = curpos - 2; i <= curpos + 2; i++) {
+                floors.add(allFloors.get(i));
             }
         }
 

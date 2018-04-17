@@ -12,7 +12,7 @@ import com.shaoxia.elevator.log.Logger;
 
 public class InArrivalActivity extends BaseArrivalActivity {
     private static final String TAG = "InArrivalActivity";
-    private final int WAITINGTIME = 5000;
+    private final int WAITINGTIME = 2000;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
