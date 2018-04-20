@@ -1,10 +1,22 @@
 package com.shaoxia.elevator;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -32,6 +44,8 @@ import java.util.Map;
 
 public class SplashActivity extends BaseActivity implements BleScanManager.OnStopScanListener,
         BleComManager.OnComListener, ElevatorsAdapter.OnRefreshClickListener, View.OnClickListener {
+    private static final int REQUEST_CODE_PERMISSION_LOCATION = 2;
+    private static final int REQUEST_CODE_OPEN_GPS = 1;
     private static final String TAG = "SplashActivity";
     private ExtendViewPager mViewPager;
     private ElevatorsAdapter mAdapter;
@@ -124,6 +138,99 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         mScanning = findViewById(R.id.scanning);
     }
 
+    private void checkPermissions() {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!bluetoothAdapter.isEnabled()) {
+//            Toast.makeText(this, getString(R.string.please_open_blue), Toast.LENGTH_LONG).show();
+//            onStopScan();
+            bluetoothAdapter.enable();
+//            return;
+        }
+
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
+        List<String> permissionDeniedList = new ArrayList<>();
+        for (String permission : permissions) {
+            int permissionCheck = ContextCompat.checkSelfPermission(this, permission);
+            if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                onPermissionGranted(permission);
+            } else {
+                permissionDeniedList.add(permission);
+            }
+        }
+        if (!permissionDeniedList.isEmpty()) {
+            String[] deniedPermissions = permissionDeniedList.toArray(new String[permissionDeniedList.size()]);
+            ActivityCompat.requestPermissions(this, deniedPermissions, REQUEST_CODE_PERMISSION_LOCATION);
+        }
+    }
+
+    private void onPermissionGranted(String permission) {
+        switch (permission) {
+            case Manifest.permission.ACCESS_FINE_LOCATION:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !checkGPSIsOpen()) {
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.notifyTitle)
+                            .setMessage(R.string.gpsNotifyMsg)
+                            .setNegativeButton(R.string.cancel,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            finish();
+                                        }
+                                    })
+                            .setPositiveButton(R.string.setting,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                            startActivityForResult(intent, REQUEST_CODE_OPEN_GPS);
+                                        }
+                                    })
+
+                            .setCancelable(false)
+                            .show();
+                } else {
+                    startScan();
+                }
+                break;
+        }
+    }
+
+    private boolean checkGPSIsOpen() {
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager == null)
+            return false;
+        return locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER);
+    }
+
+    @Override
+    public final void onRequestPermissionsResult(int requestCode,
+                                                 @NonNull String[] permissions,
+                                                 @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_CODE_PERMISSION_LOCATION:
+                if (grantResults.length > 0) {
+                    for (int i = 0; i < grantResults.length; i++) {
+                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            onPermissionGranted(permissions[i]);
+                        }
+                    }
+                }
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_OPEN_GPS) {
+            if (checkGPSIsOpen()) {
+                startScan();
+            }
+        }
+    }
+
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -136,7 +243,8 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         mBleComManager = BleComManager.getInstance(this);
         mBleComManager.setOnComListener(this);
 
-        startScan();
+//        startScan();
+        checkPermissions();
     }
 
     private void clearDevices() {
