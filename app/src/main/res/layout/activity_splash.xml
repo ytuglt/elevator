@@ -10,22 +10,48 @@
         android:layout_height="match_parent"
         android:background="@drawable/splash" />
 
-    <com.shaoxia.elevator.widget.ExtendViewPager
-        android:id="@+id/elevator_viewpager"
+    <RelativeLayout
+        android:id="@+id/content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"/>
+        android:layout_height="match_parent">
+
+        <com.shaoxia.elevator.widget.ExtendViewPager
+            android:id="@+id/elevator_viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/left_change"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="16dp"
+            android:src="@drawable/sel_left_change_btn"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/right_change"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="16dp"
+            android:src="@drawable/sel_right_change_btn"
+            android:visibility="gone"/>
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/scanning"
         android:layout_width="match_parent"
         android:layout_height="80dp"
+        android:layout_gravity="center"
         android:background="@drawable/button_background"
         android:gravity="center"
-        android:layout_gravity="center"
         android:text="Scanning,please wait..."
         android:textColor="@color/btn_call_color"
         android:textSize="32dp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 </FrameLayout>

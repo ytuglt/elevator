@@ -31,7 +31,7 @@ import java.util.Map;
  */
 
 public class SplashActivity extends BaseActivity implements BleScanManager.OnStopScanListener,
-        BleComManager.OnComListener, ElevatorsAdapter.OnRefreshClickListener {
+        BleComManager.OnComListener, ElevatorsAdapter.OnRefreshClickListener, View.OnClickListener {
     private static final String TAG = "SplashActivity";
     private ExtendViewPager mViewPager;
     private ElevatorsAdapter mAdapter;
@@ -45,6 +45,9 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     private int mCurPosition = 0;
 
     private View mScanning;
+
+    private View mLeftChange;
+    private View mRightChange;
 
     /**
      * 发现设备时 处理方法
@@ -113,6 +116,11 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             }
         });
 
+        mLeftChange = findViewById(R.id.left_change);
+        mRightChange = findViewById(R.id.right_change);
+        mLeftChange.setOnClickListener(this);
+        mRightChange.setOnClickListener(this);
+
         mScanning = findViewById(R.id.scanning);
     }
 
@@ -137,6 +145,8 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         updateAdapter();
         if (mSplashView.getVisibility() != View.VISIBLE) {
             mScanning.setVisibility(View.VISIBLE);
+            mLeftChange.setVisibility(View.GONE);
+            mRightChange.setVisibility(View.GONE);
         }
     }
 
@@ -186,10 +196,19 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             MDevice device = new MDevice();
             mDevices.add(device);
             updateAdapter();
+            mViewPager.setCurrentItem(0);
+            mLeftChange.setVisibility(View.GONE);
+            mRightChange.setVisibility(View.GONE);
         } else {
             mCurPosition = 0;
             mViewPager.setCurrentItem(0);
             getFloorInfo(0);
+            mLeftChange.setVisibility(View.GONE);
+            if (mDevices.size() >= 2) {
+                mRightChange.setVisibility(View.VISIBLE);
+            } else {
+                mRightChange.setVisibility(View.GONE);
+            }
         }
         if (mSplashView != null) {
             Logger.d(TAG, "onStopScan: mSplashView start gone");
@@ -278,10 +297,10 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
 
         setViewState(MDevice.IDLE);
 
-        if (mViewPager != null) {
-            Logger.d(TAG, "onBleDisconnected:setPagingEnabled true ");
-            mViewPager.setPagingEnabled(true);
-        }
+//        if (mViewPager != null) {
+//            Logger.d(TAG, "onBleDisconnected:setPagingEnabled true ");
+//            mViewPager.setPagingEnabled(true);
+//        }
 //        Toast.makeText(this, "断开连接", Toast.LENGTH_SHORT).show();
         if (!mHasReceiveData) {
             Logger.d(TAG, "onBleDisconnected: not receive data , reget");
@@ -425,6 +444,18 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             mHander.removeCallbacks(reGetFloorsRunnable);
         }
         mCurPosition = position;
+
+        if (mCurPosition == 0) {
+            mLeftChange.setVisibility(View.GONE);
+        } else {
+            mLeftChange.setVisibility(View.VISIBLE);
+        }
+
+        if (mCurPosition == mDevices.size() - 1) {
+            mRightChange.setVisibility(View.GONE);
+        } else {
+            mRightChange.setVisibility(View.VISIBLE);
+        }
         getFloorInfo(position);
     }
 
@@ -464,5 +495,34 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         stopScan();
         clearDevices();
         startScan();
+    }
+
+    /**
+     * Called when a view has been clicked.
+     *
+     * @param v The view that was clicked.
+     */
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.left_change:
+                if (mIsComunicating) {
+                    Toast.makeText(SplashActivity.this, "Communicating,please wait...", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                if (mViewPager != null && mCurPosition >= 1) {
+                    mViewPager.setCurrentItem(mCurPosition - 1);
+                }
+                break;
+            case R.id.right_change:
+                if (mIsComunicating) {
+                    Toast.makeText(SplashActivity.this, "Communicating,please wait...", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                if (mViewPager != null && mDevices != null && mCurPosition < (mDevices.size() - 1)) {
+                    mViewPager.setCurrentItem(mCurPosition + 1);
+                }
+                break;
+        }
     }
 }

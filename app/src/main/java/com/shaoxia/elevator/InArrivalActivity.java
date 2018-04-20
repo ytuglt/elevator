@@ -3,6 +3,7 @@ package com.shaoxia.elevator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.widget.TextView;
 
 import com.shaoxia.elevator.log.Logger;
 
@@ -38,6 +39,12 @@ public class InArrivalActivity extends BaseArrivalActivity {
         String title = mElevatorId + getResources().getString(R.string.elevator_id_unit) +
                 floor + getResources().getString(R.string.floor_unit);
         mTitleView.setText(title);
+    }
+
+    @Override
+    protected void setLightFloorBg(TextView textView) {
+        textView.setBackgroundResource(R.drawable.in_arrival_light_floor_bg);
+        textView.setTextColor(getResources().getColor(R.color.call_enable, null));
     }
 
     @Override

@@ -10,7 +10,7 @@ import android.view.MotionEvent;
  */
 public class ExtendViewPager extends ViewPager {
 
-    private boolean isPagingEnabled = true;
+    private boolean isPagingEnabled = false;
 
     public ExtendViewPager(Context context) {
         super(context);

@@ -119,9 +119,13 @@ public abstract class BaseArrivalActivity extends BaseActivity {
     }
 
     private void lightCurFloor(TextView textView) {
+        setLightFloorBg(textView);
+        textView.setShadowLayer(40, 0, 0, getResources().getColor(R.color.floor_light, null));
+    }
+
+    protected void setLightFloorBg(TextView textView) {
         textView.setBackgroundResource(R.drawable.floor_back_sel);
         textView.setTextColor(getResources().getColor(R.color.floor_light, null));
-        textView.setShadowLayer(40, 0, 0, getResources().getColor(R.color.floor_light, null));
     }
 
     protected abstract int getLightPos();
