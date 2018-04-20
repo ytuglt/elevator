@@ -80,10 +80,10 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
                         return;
                     }
 
-//                    if (mDev.isInCall()) {
-//                        Logger.d(TAG, "run: device is COP elevator");
-//                        return;
-//                    }
+                    if (mDev.isInCall()) {
+                        Logger.d(TAG, "run: device is COP elevator");
+                        return;
+                    }
 
                     //TODO
                     if (mDevices.contains(mDev)) {
@@ -167,7 +167,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         switch (permission) {
             case Manifest.permission.ACCESS_FINE_LOCATION:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !checkGPSIsOpen()) {
-                    new AlertDialog.Builder(this)
+                    new AlertDialog.Builder(this,android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
                             .setTitle(R.string.notifyTitle)
                             .setMessage(R.string.gpsNotifyMsg)
                             .setNegativeButton(R.string.cancel,
