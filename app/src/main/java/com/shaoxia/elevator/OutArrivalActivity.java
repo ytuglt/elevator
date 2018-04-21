@@ -95,6 +95,7 @@ public class OutArrivalActivity extends BaseArrivalActivity implements BleScanMa
     @Override
     public void onStopScan() {
         if (mCopDevice == null) {
+            Logger.d(TAG, "onStopScan: No Cop Device Find, finish...");
             Toast.makeText(this, "No Cop Device Find", Toast.LENGTH_SHORT);
             finish();
         }

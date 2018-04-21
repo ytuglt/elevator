@@ -89,6 +89,7 @@ public class BleComManager {
             if (extras.containsKey(Constants.EXTRA_BYTE_VALUE)) {
                 byte[] array = intent.getByteArrayExtra(Constants.EXTRA_BYTE_VALUE);
                 if (mOnComListener != null) {
+                    Logger.d(TAG, "onReceiveData: " + StringUtils.ByteArraytoHex(array));
                     mOnComListener.onReceiveData(array);
                 } else {
                     Logger.e(TAG, "doConnectReceiveLogic: mOnComListener is null");

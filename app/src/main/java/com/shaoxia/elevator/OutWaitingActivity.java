@@ -2,6 +2,7 @@ package com.shaoxia.elevator;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.shaoxia.elevator.log.Logger;
@@ -120,4 +121,33 @@ public class OutWaitingActivity extends BaseWaitingActivity {
         }
     }
 
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Logger.d(TAG, "onCreate: ");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Logger.d(TAG, "onResume: ");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Logger.d(TAG, "onPause: ");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Logger.d(TAG, "onDestroy: ");
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Logger.d(TAG, "onBackPressed: ");
+    }
 }

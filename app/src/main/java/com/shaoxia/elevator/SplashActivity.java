@@ -107,6 +107,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logger.d(TAG, "onCreate: ");
         setContentView(R.layout.activity_splash);
         mSplashView = findViewById(R.id.splash);
         mSplashView.setVisibility(View.VISIBLE);
