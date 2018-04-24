@@ -35,7 +35,7 @@ public class OutArrivalActivity extends BaseArrivalActivity implements BleScanMa
             runOnUiThread(new Runnable() {
                 public void run() {
                     Logger.d(TAG, "run: device name is : " + device.getName());
-                    MDevice mDev = new MDevice(device, rssi);
+                    MDevice mDev = new MDevice();
                     if (!mDev.isElevator()) {
                         Logger.d(TAG, "run: device is not elevator");
                         return;

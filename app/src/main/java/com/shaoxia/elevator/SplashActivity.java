@@ -1,33 +1,39 @@
 package com.shaoxia.elevator;
 
-import android.Manifest;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
-import android.content.DialogInterface;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
+import com.clj.fastble.BleManager;
+import com.clj.fastble.callback.BleGattCallback;
+import com.clj.fastble.callback.BleMtuChangedCallback;
+import com.clj.fastble.callback.BleNotifyCallback;
+import com.clj.fastble.callback.BleScanCallback;
+import com.clj.fastble.callback.BleWriteCallback;
+import com.clj.fastble.data.BleDevice;
+import com.clj.fastble.exception.BleException;
+import com.clj.fastble.scan.BleScanRuleConfig;
+import com.clj.fastble.utils.HexUtil;
 import com.shaoxia.elevator.bluetoothle.BleComManager;
 import com.shaoxia.elevator.bluetoothle.BleScanManager;
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.model.MDevice;
 import com.shaoxia.elevator.utils.CoderUtils;
+import com.shaoxia.elevator.utils.Configure;
+import com.shaoxia.elevator.utils.PermissionUtils;
 import com.shaoxia.elevator.utils.StringUtils;
 import com.shaoxia.elevator.utils.VerifyUtils;
 import com.shaoxia.elevator.widget.ExtendViewPager;
@@ -37,72 +43,25 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by gonglt1 on 2018/3/7.
  */
 
-public class SplashActivity extends BaseActivity implements BleScanManager.OnStopScanListener,
-        BleComManager.OnComListener, ElevatorsAdapter.OnRefreshClickListener, View.OnClickListener {
-    private static final int REQUEST_CODE_PERMISSION_LOCATION = 2;
-    private static final int REQUEST_CODE_OPEN_GPS = 1;
+public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnRefreshClickListener, View.OnClickListener
+        , PermissionUtils.PermissionCheckCallback {
+
     private static final String TAG = "SplashActivity";
     private ExtendViewPager mViewPager;
     private ElevatorsAdapter mAdapter;
     private List<MDevice> mDevices = new ArrayList<>();
 
     private View mSplashView;
-
-    private BleScanManager mBleScanManager;
-    private BleComManager mBleComManager;
-
     private int mCurPosition = 0;
-
     private View mScanning;
-
     private View mLeftChange;
     private View mRightChange;
-
-    /**
-     * 发现设备时 处理方法
-     */
-    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
-
-        @Override
-        public void onLeScan(final BluetoothDevice device, final int rssi,
-                             byte[] scanRecord) {
-            runOnUiThread(new Runnable() {
-                public void run() {
-//                    Logger.d(TAG, "run: device name is : " + device.getName());
-                    MDevice mDev = new MDevice(device, rssi);
-                    if (!mDev.isElevator()) {
-//                        Logger.d(TAG, "run: device is not elevator");
-                        return;
-                    }
-
-                    if (mDev.isInCall()) {
-                        Logger.d(TAG, "run: device is COP elevator");
-                        return;
-                    }
-
-                    //TODO
-                    if (mDevices.contains(mDev)) {
-                        return;
-                    }
-                    if (mDev.getDevName() == null) {
-                        Logger.d(TAG, "run: device name is null");
-                        return;
-                    }
-
-                    Logger.d(TAG, "run: add device" + mDev.getDevName());
-                    //TODO
-                    mScanning.setVisibility(View.GONE);
-                    mDevices.add(mDev);
-                    updateAdapter();
-                }
-            });
-        }
-    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -137,115 +96,20 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         mRightChange.setOnClickListener(this);
 
         mScanning = findViewById(R.id.scanning);
+
+        BleManager.getInstance().init(getApplication());
+        BleManager.getInstance()
+                .enableLog(true)
+                .setMaxConnectCount(1)
+                .setOperateTimeout(5000);
     }
-
-    private void checkPermissions() {
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (!bluetoothAdapter.isEnabled()) {
-//            Toast.makeText(this, getString(R.string.please_open_blue), Toast.LENGTH_LONG).show();
-//            onStopScan();
-            bluetoothAdapter.enable();
-//            return;
-        }
-
-        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
-        List<String> permissionDeniedList = new ArrayList<>();
-        for (String permission : permissions) {
-            int permissionCheck = ContextCompat.checkSelfPermission(this, permission);
-            if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-                onPermissionGranted(permission);
-            } else {
-                permissionDeniedList.add(permission);
-            }
-        }
-        if (!permissionDeniedList.isEmpty()) {
-            String[] deniedPermissions = permissionDeniedList.toArray(new String[permissionDeniedList.size()]);
-            ActivityCompat.requestPermissions(this, deniedPermissions, REQUEST_CODE_PERMISSION_LOCATION);
-        }
-    }
-
-    private void onPermissionGranted(String permission) {
-        switch (permission) {
-            case Manifest.permission.ACCESS_FINE_LOCATION:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !checkGPSIsOpen()) {
-                    new AlertDialog.Builder(this,android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
-                            .setTitle(R.string.notifyTitle)
-                            .setMessage(R.string.gpsNotifyMsg)
-                            .setNegativeButton(R.string.cancel,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            finish();
-                                        }
-                                    })
-                            .setPositiveButton(R.string.setting,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                            startActivityForResult(intent, REQUEST_CODE_OPEN_GPS);
-                                        }
-                                    })
-
-                            .setCancelable(false)
-                            .show();
-                } else {
-                    startScan();
-                }
-                break;
-        }
-    }
-
-    private boolean checkGPSIsOpen() {
-        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager == null)
-            return false;
-        return locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER);
-    }
-
-    @Override
-    public final void onRequestPermissionsResult(int requestCode,
-                                                 @NonNull String[] permissions,
-                                                 @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case REQUEST_CODE_PERMISSION_LOCATION:
-                if (grantResults.length > 0) {
-                    for (int i = 0; i < grantResults.length; i++) {
-                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                            onPermissionGranted(permissions[i]);
-                        }
-                    }
-                }
-                break;
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_OPEN_GPS) {
-            if (checkGPSIsOpen()) {
-                startScan();
-            }
-        }
-    }
-
 
     @Override
     protected void onResume() {
         super.onResume();
         Logger.d(TAG, "onResume: ");
         clearDevices();
-        mBleScanManager = BleScanManager.getInstance(this);
-        mBleScanManager.setOnStopScanListener(this);
-        mBleScanManager.setLeScanCallback(mLeScanCallback);
-
-        mBleComManager = BleComManager.getInstance(this);
-        mBleComManager.setOnComListener(this);
-
-//        startScan();
-        checkPermissions();
+        PermissionUtils.checkPermissions(this, this);
     }
 
     private void clearDevices() {
@@ -262,23 +126,68 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     private boolean mIsSanning = false;
 
     private void startScan() {
-        if (mBleScanManager != null) {
-            mIsSanning = true;
-            if (mViewPager != null) {
-                Logger.d(TAG, "startScan:setPagingEnabled false ");
-                mViewPager.setPagingEnabled(false);
+
+        Logger.d(TAG, "startScan: ");
+
+        BleScanRuleConfig scanRuleConfig = new BleScanRuleConfig.Builder()
+//                .setServiceUuids(new UUID[]{UUID.fromString(Configure.SERVICE_UUID)})      // 只扫描指定的服务的设备，可选
+                .setAutoConnect(false)      // 连接时的autoConnect参数，可选，默认false
+                .setScanTimeOut(5000)              // 扫描超时时间，可选，默认10秒
+                .build();
+        BleManager.getInstance().initScanRule(scanRuleConfig);
+
+        BleManager.getInstance().scan(new BleScanCallback() {
+
+            @Override
+            public void onScanStarted(boolean success) {
+                mIsSanning = true;
+                if (mViewPager != null) {
+                    Logger.d(TAG, "startScan:setPagingEnabled false ");
+                    mViewPager.setPagingEnabled(false);
+                }
             }
-            Logger.d(TAG, "startScan: ");
-            mBleScanManager.startScan();
-        }
+
+            @Override
+            public void onScanning(BleDevice result) {
+                MDevice mDev = new MDevice(result);
+                if (!mDev.isElevator()) {
+//                        Logger.d(TAG, "run: device is not elevator");
+                    return;
+                }
+//                if (mDev.isInCall()) {
+//                    Logger.d(TAG, "run: device is COP elevator");
+//                    return;
+//                }
+                //TODO
+                if (mDevices.contains(mDev)) {
+                    return;
+                }
+                if (mDev.getDevName() == null) {
+                    Logger.d(TAG, "run: device name is null");
+                    return;
+                }
+
+                Logger.d(TAG, "run: add device" + mDev.getDevName());
+                //TODO
+                mScanning.setVisibility(View.GONE);
+                mDevices.add(mDev);
+                updateAdapter();
+            }
+
+            @Override
+            public void onScanFinished(List<BleDevice> scanResultList) {
+                Logger.d(TAG, "onScanFinished: ");
+                if(!isFinishing()) {
+                    onStopScan();
+                }
+            }
+        });
     }
 
     private void stopScan() {
-        if (mBleScanManager != null) {
-            Logger.d(TAG, "stopScan: ");
-            mBleScanManager.stopScan();
-            mIsSanning = false;
-        }
+        Logger.d(TAG, "stopScan: ");
+        mIsSanning = false;
+        BleManager.getInstance().cancelScan();
     }
 
     @Override
@@ -287,15 +196,9 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         Logger.d(TAG, "onPause: ");
         stopScan();
         mIsComunicating = false;
-        if (mBleComManager != null) {
-            mBleComManager.disconnect();
-        }
-        if (mBleComManager != null) {
-            mBleComManager.destroy();
-        }
+        BleManager.getInstance().disconnectAllDevice();
     }
 
-    @Override
     public void onStopScan() {
         Logger.d(TAG, "onStopScan: ");
         mIsSanning = false;
@@ -339,15 +242,16 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         super.onDestroy();
         Logger.d(TAG, "onDestroy: ");
         mIsComunicating = false;
-        if (mBleScanManager != null) {
-            mBleScanManager.destroy();
-        }
-//        if (mBleComManager != null) {
-//            mBleComManager.destroy();
-//        }
+        BleManager.getInstance().disconnectAllDevice();
+        BleManager.getInstance().destroy();
     }
 
     private boolean mHasReceiveData = false;
+
+    private MDevice mCurDevice;
+
+    private BluetoothGattCharacteristic writeCharacteristic;
+    private BluetoothGattCharacteristic notifyCharacteristic;
 
     private void getFloorInfo(int position) {
         Logger.d(TAG, "getFloorInfo: ");
@@ -359,20 +263,158 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             Logger.e(TAG, "getFloorInfo: position is illegal");
             return;
         }
-        MDevice device = mDevices.get(position);
-        mBleComManager.setDevAddress(device.getDevAddress());
-        mBleComManager.setDevName(device.getDevName());
+        mCurDevice = mDevices.get(position);
+        Logger.d(TAG, "getFloorInfo: " + mCurDevice.getDevice().getName() + "-- " + mCurDevice.getDevice().getAddress());
+        connect(mCurDevice);
+    }
+
+    private void connect(BleDevice bleDevice) {
+        if (!BleManager.getInstance().isConnected(bleDevice)) {
+//            BleManager.getInstance().cancelScan();
+            BleManager.getInstance().connect(bleDevice, new BleGattCallback() {
+                @Override
+                public void onStartConnect() {
+                    Logger.d(TAG, "onStartConnect: ");
+                    onCommunicating();
+                }
+
+                @Override
+                public void onConnectFail(BleException exception) {
+                    Logger.d(TAG, "onConnectFail: ");
+                    onConnectFailed();
+                }
+
+                @Override
+                public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
+                    Logger.d(TAG, "onConnectSuccess: ");
+
+                    BluetoothGattService service = gatt.getService(UUID.fromString(Configure.SERVICE_UUID));
+                    for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
+                        int charaProp = characteristic.getProperties();
+                        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
+                            writeCharacteristic = characteristic;
+                        } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                            notifyCharacteristic = characteristic;
+                        }
+                    }
+                    setMtu(bleDevice, 512);
+                }
+
+                @Override
+                public void onDisConnected(boolean isActiveDisConnected, BleDevice device, BluetoothGatt gatt, int status) {
+                    Logger.d(TAG, "onDisConnected: ");
+                    onBleDisconnected();
+                }
+            });
+        }
+
+    }
+
+
+    private void setMtu(BleDevice bleDevice, int mtu) {
+        BleManager.getInstance().setMtu(bleDevice, mtu, new BleMtuChangedCallback() {
+            @Override
+            public void onSetMTUFailure(BleException exception) {
+                Logger.i(TAG, "onsetMTUFailure" + exception.toString());
+            }
+
+            @Override
+            public void onMtuChanged(int mtu) {
+                Logger.i(TAG, "onMtuChanged: " + mtu);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        writeData();
+                    }
+                });
+
+            }
+        });
+    }
+
+    private void writeData() {
         byte[] cmd = new byte[3];
         cmd[0] = (byte) 0xb4;
         cmd[1] = (byte) 0x00;
         cmd[2] = (byte) 0xb4;
-        mBleComManager.sendData(cmd);
+
+        BleManager.getInstance().write(
+                mCurDevice,
+                writeCharacteristic.getService().getUuid().toString(),
+                writeCharacteristic.getUuid().toString(),
+                cmd,
+                new BleWriteCallback() {
+
+                    @Override
+                    public void onWriteSuccess(final int current, final int total, final byte[] justWrite) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Logger.d(TAG, "onWriteSuccess: write success, current: " + current
+                                        + " total: " + total
+                                        + " justWrite: " + HexUtil.formatHexString(justWrite, true));
+                                notifyStart();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onWriteFailure(final BleException exception) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Logger.d(TAG, "run: " + exception.toString());
+                            }
+                        });
+                    }
+                });
+
         mHasReceiveData = false;
     }
 
+    private void notifyStart() {
+        BleManager.getInstance().notify(
+                mCurDevice,
+                notifyCharacteristic.getService().getUuid().toString(),
+                notifyCharacteristic.getUuid().toString(),
+                new BleNotifyCallback() {
+
+                    @Override
+                    public void onNotifySuccess() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Logger.d(TAG, "onNotifySuccess: notify success");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onNotifyFailure(final BleException exception) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Logger.d(TAG, "onNotifyFailure: " + exception.toString());
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCharacteristicChanged(byte[] data) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Logger.d(TAG, "onCharacteristicChanged: " + HexUtil.formatHexString(notifyCharacteristic.getValue()));
+                                onReceiveData(notifyCharacteristic.getValue());
+                            }
+                        });
+                    }
+                });
+    }
+
+
     private boolean mIsComunicating;
 
-    @Override
     public void onCommunicating() {
         Logger.d(TAG, "onCommunicating: ");
         mIsComunicating = true;
@@ -391,12 +433,6 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         }
     }
 
-    @Override
-    public void onWriteSuccess() {
-        Logger.d(TAG, "onWriteSuccess: ");
-    }
-
-    @Override
     public void onBleDisconnected() {
         Logger.d(TAG, "onBleDisconnected: ");
         mIsComunicating = false;
@@ -406,11 +442,6 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
 
         setViewState(MDevice.IDLE);
 
-//        if (mViewPager != null) {
-//            Logger.d(TAG, "onBleDisconnected:setPagingEnabled true ");
-//            mViewPager.setPagingEnabled(true);
-//        }
-//        Toast.makeText(this, "断开连接", Toast.LENGTH_SHORT).show();
         if (!mHasReceiveData) {
             Logger.d(TAG, "onBleDisconnected: not receive data , reget");
             if (mHander == null) {
@@ -431,7 +462,6 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     };
 
 
-    @Override
     public void onConnectFailed() {
         Logger.d(TAG, "onConnectFailed: ");
         mIsComunicating = false;
@@ -441,7 +471,6 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     private int mDataLenth;
     private int mHasReceivelength;
 
-    @Override
     public void onReceiveData(byte[] array) {
         mHasReceiveData = true;
         Logger.d(TAG, "onReceiveData: data:" + StringUtils.ByteArraytoHex(array));
@@ -471,7 +500,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
         mHasReceivelength += array.length;
 
         if (mDataLenth == mHasReceivelength) {
-            mBleComManager.disconnect();
+            BleManager.getInstance().disconnect(mCurDevice);
             if (!checkData(mReceiveData)) {
                 Log.d(TAG, "onReceiveData: checkdata errror");
                 return;
@@ -596,11 +625,6 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             Toast.makeText(this, "Communicating,please wait", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        if (mBleComManager != null) {
-            mBleComManager.disconnect();
-        }
-
         stopScan();
         clearDevices();
         startScan();
@@ -632,6 +656,39 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
                     mViewPager.setCurrentItem(mCurPosition + 1);
                 }
                 break;
+        }
+    }
+
+    @Override
+    public void onGranted() {
+        startScan();
+    }
+
+    @Override
+    public final void onRequestPermissionsResult(int requestCode,
+                                                 @NonNull String[] permissions,
+                                                 @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PermissionUtils.REQUEST_CODE_PERMISSION_LOCATION:
+                if (grantResults.length > 0) {
+                    for (int i = 0; i < grantResults.length; i++) {
+                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            PermissionUtils.onPermissionGranted(this, permissions[i], this);
+                        }
+                    }
+                }
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PermissionUtils.REQUEST_CODE_OPEN_GPS) {
+            if (PermissionUtils.checkGPSIsOpen(this)) {
+                startScan();
+            }
         }
     }
 }

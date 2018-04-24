@@ -3,6 +3,7 @@ package com.shaoxia.elevator.model;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
+import com.clj.fastble.data.BleDevice;
 import com.shaoxia.elevator.MyApplication;
 import com.shaoxia.elevator.R;
 import com.shaoxia.elevator.log.Logger;
@@ -15,7 +16,7 @@ import java.util.Map;
  * Created by gonglt1 on 18-1-20.
  */
 
-public class MDevice implements Serializable {
+public class MDevice extends BleDevice implements Serializable {
     private static final String TAG = "MDevice";
     public final static int IDLE = 0;
     public final static int COMUNICATING = 1;
@@ -40,31 +41,31 @@ public class MDevice implements Serializable {
     private Map<String, Byte> mFloorsMap;
 
     public MDevice() {
-
+        super();
     }
 
-    public MDevice(BluetoothDevice device, int rssi) {
-        this.rssi = rssi;
+    public MDevice(BleDevice device) {
+        super(device);
         parseName(device);
     }
 
-    private void parseName(BluetoothDevice device) {
+    private void parseName(BleDevice device) {
         devName = device.getName();
-        devAddress = device.getAddress();
+        devAddress = device.getMac();
 
-//        //TODO TEST
-//        if (devName != null && devName.startsWith("Zero")) {
-//            floor = devName.substring(4, 7);
-//            elevatorId = devName.substring(7, 10);
-////            reNameElevatorId();
-//            floor ="  1".trim();
-//            Logger.d(TAG, "parseName:floor =" + floor);
-//            elevatorId = "XXX";
-//            isElevator = true;
-//            isInCall = true;
-//            return;
-//        }
-//        //TODO
+        //TODO TEST
+        if (devName != null && devName.startsWith("Zero")) {
+            floor = devName.substring(4, 7);
+            elevatorId = devName.substring(7, 10);
+//            reNameElevatorId();
+            floor ="  1".trim();
+            Logger.d(TAG, "parseName:floor =" + floor);
+            elevatorId = "XXX";
+            isElevator = true;
+            isInCall = true;
+            return;
+        }
+        //TODO
 
         if (devName == null || !devName.startsWith(START) || devName.length() < 10) {
             isElevator = false;
