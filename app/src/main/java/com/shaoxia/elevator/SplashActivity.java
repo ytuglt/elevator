@@ -1,14 +1,9 @@
 package com.shaoxia.elevator;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
@@ -17,33 +12,21 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
-import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleGattCallback;
-import com.clj.fastble.callback.BleMtuChangedCallback;
 import com.clj.fastble.callback.BleNotifyCallback;
 import com.clj.fastble.callback.BleScanCallback;
-import com.clj.fastble.callback.BleWriteCallback;
 import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.exception.BleException;
-import com.clj.fastble.scan.BleScanRuleConfig;
 import com.clj.fastble.utils.HexUtil;
-import com.shaoxia.elevator.bluetoothle.BleComManager;
-import com.shaoxia.elevator.bluetoothle.BleScanManager;
+import com.shaoxia.elevator.fastble.FastBleManager;
 import com.shaoxia.elevator.log.Logger;
+import com.shaoxia.elevator.logic.FloorsLogic;
 import com.shaoxia.elevator.model.MDevice;
-import com.shaoxia.elevator.utils.CoderUtils;
-import com.shaoxia.elevator.utils.Configure;
 import com.shaoxia.elevator.utils.PermissionUtils;
-import com.shaoxia.elevator.utils.StringUtils;
-import com.shaoxia.elevator.utils.VerifyUtils;
 import com.shaoxia.elevator.widget.ExtendViewPager;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Created by gonglt1 on 2018/3/7.
@@ -62,6 +45,8 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
     private View mScanning;
     private View mLeftChange;
     private View mRightChange;
+
+    private FastBleManager mFastBleManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -96,12 +81,8 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
         mRightChange.setOnClickListener(this);
 
         mScanning = findViewById(R.id.scanning);
-
-        BleManager.getInstance().init(getApplication());
-        BleManager.getInstance()
-                .enableLog(true)
-                .setMaxConnectCount(1)
-                .setOperateTimeout(5000);
+        mFastBleManager = FastBleManager.getInstance();
+        mFastBleManager.init();
     }
 
     @Override
@@ -123,24 +104,13 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
         }
     }
 
-    private boolean mIsSanning = false;
-
     private void startScan() {
-
         Logger.d(TAG, "startScan: ");
-
-        BleScanRuleConfig scanRuleConfig = new BleScanRuleConfig.Builder()
-//                .setServiceUuids(new UUID[]{UUID.fromString(Configure.SERVICE_UUID)})      // 只扫描指定的服务的设备，可选
-                .setAutoConnect(false)      // 连接时的autoConnect参数，可选，默认false
-                .setScanTimeOut(5000)              // 扫描超时时间，可选，默认10秒
-                .build();
-        BleManager.getInstance().initScanRule(scanRuleConfig);
-
-        BleManager.getInstance().scan(new BleScanCallback() {
+        FastBleManager.getInstance().startScan(new BleScanCallback() {
 
             @Override
             public void onScanStarted(boolean success) {
-                mIsSanning = true;
+                mFastBleManager.setState(FastBleManager.STATE.SCANNING);
                 if (mViewPager != null) {
                     Logger.d(TAG, "startScan:setPagingEnabled false ");
                     mViewPager.setPagingEnabled(false);
@@ -149,59 +119,34 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
 
             @Override
             public void onScanning(BleDevice result) {
-                MDevice mDev = new MDevice(result);
-                if (!mDev.isElevator()) {
-//                        Logger.d(TAG, "run: device is not elevator");
-                    return;
+                if (FloorsLogic.getInstance().addDevice(mDevices, result)) {
+                    mScanning.setVisibility(View.GONE);
+                    updateAdapter();
                 }
-//                if (mDev.isInCall()) {
-//                    Logger.d(TAG, "run: device is COP elevator");
-//                    return;
-//                }
-                //TODO
-                if (mDevices.contains(mDev)) {
-                    return;
-                }
-                if (mDev.getDevName() == null) {
-                    Logger.d(TAG, "run: device name is null");
-                    return;
-                }
-
-                Logger.d(TAG, "run: add device" + mDev.getDevName());
-                //TODO
-                mScanning.setVisibility(View.GONE);
-                mDevices.add(mDev);
-                updateAdapter();
             }
 
             @Override
             public void onScanFinished(List<BleDevice> scanResultList) {
                 Logger.d(TAG, "onScanFinished: ");
-                if(!isFinishing()) {
+                if (mFastBleManager.getState() == FastBleManager.STATE.SCANNING) {
+                    mFastBleManager.setState(FastBleManager.STATE.IDLE);
                     onStopScan();
                 }
             }
         });
     }
 
-    private void stopScan() {
-        Logger.d(TAG, "stopScan: ");
-        mIsSanning = false;
-        BleManager.getInstance().cancelScan();
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
         Logger.d(TAG, "onPause: ");
-        stopScan();
-        mIsComunicating = false;
-        BleManager.getInstance().disconnectAllDevice();
+        mFastBleManager.stopScan();
+        mFastBleManager.disConnect();
+        mFastBleManager.setState(FastBleManager.STATE.IDLE);
     }
 
     public void onStopScan() {
         Logger.d(TAG, "onStopScan: ");
-        mIsSanning = false;
         if (mDevices.size() <= 0) {
             mScanning.setVisibility(View.GONE);
             Toast.makeText(this, "未发现设备", Toast.LENGTH_SHORT).show();
@@ -237,148 +182,32 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Logger.d(TAG, "onDestroy: ");
-        mIsComunicating = false;
-        BleManager.getInstance().disconnectAllDevice();
-        BleManager.getInstance().destroy();
-    }
-
-    private boolean mHasReceiveData = false;
-
-    private MDevice mCurDevice;
-
-    private BluetoothGattCharacteristic writeCharacteristic;
-    private BluetoothGattCharacteristic notifyCharacteristic;
-
     private void getFloorInfo(int position) {
-        Logger.d(TAG, "getFloorInfo: ");
-        if (mIsComunicating) {
-            Logger.d(TAG, "getFloorInfo: is comunicating");
-            return;
-        }
-        if (position >= mDevices.size() || position < 0) {
-            Logger.e(TAG, "getFloorInfo: position is illegal");
-            return;
-        }
-        mCurDevice = mDevices.get(position);
-        Logger.d(TAG, "getFloorInfo: " + mCurDevice.getDevice().getName() + "-- " + mCurDevice.getDevice().getAddress());
-        connect(mCurDevice);
-    }
-
-    private void connect(BleDevice bleDevice) {
-        if (!BleManager.getInstance().isConnected(bleDevice)) {
-//            BleManager.getInstance().cancelScan();
-            BleManager.getInstance().connect(bleDevice, new BleGattCallback() {
-                @Override
-                public void onStartConnect() {
-                    Logger.d(TAG, "onStartConnect: ");
-                    onCommunicating();
-                }
-
-                @Override
-                public void onConnectFail(BleException exception) {
-                    Logger.d(TAG, "onConnectFail: ");
-                    onConnectFailed();
-                }
-
-                @Override
-                public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
-                    Logger.d(TAG, "onConnectSuccess: ");
-
-                    BluetoothGattService service = gatt.getService(UUID.fromString(Configure.SERVICE_UUID));
-                    for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
-                        int charaProp = characteristic.getProperties();
-                        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
-                            writeCharacteristic = characteristic;
-                        } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                            notifyCharacteristic = characteristic;
-                        }
-                    }
-                    setMtu(bleDevice, 512);
-                }
-
-                @Override
-                public void onDisConnected(boolean isActiveDisConnected, BleDevice device, BluetoothGatt gatt, int status) {
-                    Logger.d(TAG, "onDisConnected: ");
-                    onBleDisconnected();
-                }
-            });
-        }
-
-    }
-
-
-    private void setMtu(BleDevice bleDevice, int mtu) {
-        BleManager.getInstance().setMtu(bleDevice, mtu, new BleMtuChangedCallback() {
-            @Override
-            public void onSetMTUFailure(BleException exception) {
-                Logger.i(TAG, "onsetMTUFailure" + exception.toString());
-            }
-
-            @Override
-            public void onMtuChanged(int mtu) {
-                Logger.i(TAG, "onMtuChanged: " + mtu);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        writeData();
-                    }
-                });
-
-            }
-        });
-    }
-
-    private void writeData() {
-        byte[] cmd = new byte[3];
-        cmd[0] = (byte) 0xb4;
-        cmd[1] = (byte) 0x00;
-        cmd[2] = (byte) 0xb4;
-
-        BleManager.getInstance().write(
-                mCurDevice,
-                writeCharacteristic.getService().getUuid().toString(),
-                writeCharacteristic.getUuid().toString(),
-                cmd,
-                new BleWriteCallback() {
+        FloorsLogic.getInstance().getFloorInfo(position, mDevices, new BleGattCallback() {
 
                     @Override
-                    public void onWriteSuccess(final int current, final int total, final byte[] justWrite) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Logger.d(TAG, "onWriteSuccess: write success, current: " + current
-                                        + " total: " + total
-                                        + " justWrite: " + HexUtil.formatHexString(justWrite, true));
-                                notifyStart();
-                            }
-                        });
+                    public void onStartConnect() {
+                        onCommunicating();
                     }
 
                     @Override
-                    public void onWriteFailure(final BleException exception) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Logger.d(TAG, "run: " + exception.toString());
-                            }
-                        });
+                    public void onConnectFail(BleException exception) {
+                        onConnectFailed();
+
                     }
-                });
 
-        mHasReceiveData = false;
-    }
+                    @Override
+                    public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
 
-    private void notifyStart() {
-        BleManager.getInstance().notify(
-                mCurDevice,
-                notifyCharacteristic.getService().getUuid().toString(),
-                notifyCharacteristic.getUuid().toString(),
+                    }
+
+                    @Override
+                    public void onDisConnected(boolean isActiveDisConnected, BleDevice device, BluetoothGatt gatt, int status) {
+                        onBleDisconnected();
+                    }
+                },
                 new BleNotifyCallback() {
-
+                    //
                     @Override
                     public void onNotifySuccess() {
                         runOnUiThread(new Runnable() {
@@ -400,16 +229,36 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
                     }
 
                     @Override
-                    public void onCharacteristicChanged(byte[] data) {
+                    public void onCharacteristicChanged(final byte[] data) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Logger.d(TAG, "onCharacteristicChanged: " + HexUtil.formatHexString(notifyCharacteristic.getValue()));
-                                onReceiveData(notifyCharacteristic.getValue());
+                                Logger.d(TAG, "onCharacteristicChanged: " + HexUtil.formatHexString(data));
+                                if (FloorsLogic.getInstance().onReceiveData(
+                                        data,
+                                        mDevices.get(mCurPosition))) {
+                                    updateWheel();
+                                }
                             }
                         });
                     }
                 });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Logger.d(TAG, "onDestroy: ");
+        mIsComunicating = false;
+        mFastBleManager.destroy();
+    }
+
+    private void updateWheel() {
+        ElevatorsAdapter.ViewHolder viewHolder = mAdapter.getHolder(mCurPosition);
+        if (viewHolder != null) {
+            viewHolder.updateWheelData();
+        }
+        mAdapter.notifyDataSetChanged();
     }
 
 
@@ -436,140 +285,12 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
     public void onBleDisconnected() {
         Logger.d(TAG, "onBleDisconnected: ");
         mIsComunicating = false;
-        mReceiveData = null;
-        mDataLenth = 0;
-        mHasReceivelength = 0;
-
         setViewState(MDevice.IDLE);
-
-        if (!mHasReceiveData) {
-            Logger.d(TAG, "onBleDisconnected: not receive data , reget");
-            if (mHander == null) {
-                mHander = new Handler();
-            }
-            mHander.postDelayed(reGetFloorsRunnable, 5000);
-
-        }
     }
-
-    private Handler mHander;
-    private Runnable reGetFloorsRunnable = new Runnable() {
-
-        @Override
-        public void run() {
-            getFloorInfo(mCurPosition);
-        }
-    };
-
 
     public void onConnectFailed() {
         Logger.d(TAG, "onConnectFailed: ");
         mIsComunicating = false;
-    }
-
-    private byte[] mReceiveData;
-    private int mDataLenth;
-    private int mHasReceivelength;
-
-    public void onReceiveData(byte[] array) {
-        mHasReceiveData = true;
-        Logger.d(TAG, "onReceiveData: data:" + StringUtils.ByteArraytoHex(array));
-
-        if (array == null && array.length < 2) {
-            Logger.e(TAG, "onReceiveData: return data null or to short error");
-            return;
-        }
-
-        if (array[0] == (byte) 0xEC) {
-            Logger.e(TAG, "onReceiveData: return data head data");
-            mDataLenth = getFloorDataLengh(array) + 3;
-            mReceiveData = new byte[mDataLenth];
-        }
-
-        if (mHasReceivelength >= mDataLenth) {
-            Logger.d(TAG, "onReceiveData: over receive data length");
-            return;
-        }
-
-        if (array.length + mHasReceivelength > mReceiveData.length) {
-            Logger.d(TAG, "onReceiveData: receive data length has over the datalengh");
-            return;
-        }
-
-        System.arraycopy(array, 0, mReceiveData, mHasReceivelength, array.length);
-        mHasReceivelength += array.length;
-
-        if (mDataLenth == mHasReceivelength) {
-            BleManager.getInstance().disconnect(mCurDevice);
-            if (!checkData(mReceiveData)) {
-                Log.d(TAG, "onReceiveData: checkdata errror");
-                return;
-            }
-            parseData(mReceiveData);
-        }
-    }
-
-    private int getFloorDataLengh(byte[] array) {
-        return array[1] * 4;
-    }
-
-    private void parseData(byte[] array) {
-        Logger.d(TAG, "parseData: ");
-        List<String> floors = new ArrayList<>();
-        List<Byte> reals = new ArrayList<>();
-        Map<String, Byte> floorMap = new HashMap<>();
-        byte[] tmp = new byte[3];
-        for (int i = 2; i < getFloorDataLengh(array); i += 4) {
-            reals.add(array[i]);
-            tmp[0] = array[i + 1];
-            tmp[1] = array[i + 2];
-            tmp[2] = array[i + 3];
-            String floor = CoderUtils.asciiToString(tmp).trim();
-            Log.d(TAG, "parseData: floor:" + floor);
-            floors.add(floor);
-            floorMap.put(floor, array[i]);
-        }
-
-        if (reals.size() >= 2) {
-            if (reals.get(1) > reals.get(0)) {
-                Logger.d(TAG, "parseData: reverse floors");
-                Collections.reverse(floors);
-            }
-        }
-        mDevices.get(mCurPosition).setFloorsMap(floorMap);
-        Logger.d(TAG, "parseData: floors size " + floors.size());
-        mDevices.get(mCurPosition).setFloors(floors);
-        ElevatorsAdapter.ViewHolder viewHolder = mAdapter.getHolder(mCurPosition);
-        if (viewHolder != null) {
-            viewHolder.updateWheelData();
-        }
-        mAdapter.notifyDataSetChanged();
-    }
-
-    private boolean checkData(byte[] array) {
-        if (array == null && array.length < 3) {
-            Logger.e(TAG, "onReceiveData: return data null or to short error");
-            return false;
-        }
-
-        if (array[0] != (byte) 0xEC) {
-            Logger.e(TAG, "onReceiveData: return data head error");
-            return false;
-        }
-
-        if ((array.length - 3) != getFloorDataLengh(array)) {
-            Logger.e(TAG, "onReceiveData: return data length error");
-            return false;
-        }
-
-        byte sum = VerifyUtils.getCheckNum(array);
-        Logger.d(TAG, "checkData: sum is : " + StringUtils.ByteArraytoHex(new byte[]{sum}));
-        if (sum != array[array.length - 1]) {
-            Logger.e(TAG, "onReceiveData: checksum error");
-            return false;
-        }
-
-        return true;
     }
 
     private void onPageChanged(int position) {
@@ -578,9 +299,7 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
             Logger.d(TAG, "onPageChanged: same position");
             return;
         }
-        if (mHander != null) {
-            mHander.removeCallbacks(reGetFloorsRunnable);
-        }
+        FloorsLogic.getInstance().onPageChanged();
         mCurPosition = position;
 
         if (mCurPosition == 0) {
@@ -614,7 +333,7 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
     @Override
     public void onRerefsh() {
         Logger.d(TAG, "onRerefsh: ");
-        if (mIsSanning) {
+        if (mFastBleManager.getState() == FastBleManager.STATE.SCANNING) {
             Logger.d(TAG, "onRerefsh: is mIsSanning ");
             Toast.makeText(this, "Scanning,please wait", Toast.LENGTH_SHORT).show();
             return;
@@ -625,7 +344,7 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
             Toast.makeText(this, "Communicating,please wait", Toast.LENGTH_SHORT).show();
             return;
         }
-        stopScan();
+        mFastBleManager.stopScan();
         clearDevices();
         startScan();
     }
