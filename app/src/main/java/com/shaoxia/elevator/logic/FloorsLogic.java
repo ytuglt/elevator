@@ -56,10 +56,10 @@ public class FloorsLogic {
 //                        Logger.d(TAG, "run: device is not elevator");
             return false;
         }
-//                if (mDev.isInCall()) {
-//                    Logger.d(TAG, "run: device is COP elevator");
-//                    return;
-//                }
+        if (mDev.isInCall()) {
+            Logger.d(TAG, "run: device is COP elevator");
+            return false;
+        }
         if (deviceList.contains(mDev)) {
             return false;
         }

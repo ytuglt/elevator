@@ -3,6 +3,7 @@ package com.shaoxia.elevator.fastble;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.util.Log;
 
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleGattCallback;
@@ -98,11 +99,17 @@ public class FastBleManager {
                     Logger.d(TAG, "onConnectSuccess: ");
 
                     BluetoothGattService service = gatt.getService(UUID.fromString(Configure.SERVICE_UUID));
+                    if (service == null) {
+                        Logger.d(TAG, "onConnectSuccess: service is null");
+                        return;
+                    }
                     for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
                         int charaProp = characteristic.getProperties();
                         if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
+                            Logger.d(TAG, "onConnectSuccess: writeCharacteristic");
                             writeCharacteristic = characteristic;
                         } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                            Logger.d(TAG, "onConnectSuccess: notifyCharacteristic");
                             notifyCharacteristic = characteristic;
                         }
                     }
