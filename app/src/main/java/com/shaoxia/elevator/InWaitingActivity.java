@@ -45,7 +45,7 @@ public class InWaitingActivity extends BaseWaitingActivity {
     protected void getUpOrDown() {
         mIsUp = getIntent().getBooleanExtra("isUp", true);
         Logger.d(TAG, "getUpOrDown: mIsUp = " + mIsUp);
-        mCopDevice = (MDevice) getIntent().getSerializableExtra(COP_DEVICE_KEY);
+        mCopDevice = (MDevice) getIntent().getParcelableExtra(COP_DEVICE_KEY);
         if (mEnterFrom == ENTER_FORM_SPLASH) {
             mDevice = mCopDevice;
         }
@@ -145,7 +145,7 @@ public class InWaitingActivity extends BaseWaitingActivity {
             Logger.d(TAG, "parseData: light turn off");
             Intent intent = new Intent(this, InArrivalActivity.class);
             Bundle bundle = new Bundle();
-            bundle.putSerializable("device", device);//序列化
+            bundle.putParcelable("device", device);//序列化
             intent.putExtras(bundle);//发送数据
             intent.putExtra("despos", mDesPos);
             intent.putExtra("id", device.getElevatorId());

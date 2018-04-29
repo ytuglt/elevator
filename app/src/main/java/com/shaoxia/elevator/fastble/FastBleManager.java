@@ -105,7 +105,8 @@ public class FastBleManager {
                     }
                     for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
                         int charaProp = characteristic.getProperties();
-                        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
+                        if (((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) ||
+                                ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) > 0)) {
                             Logger.d(TAG, "onConnectSuccess: writeCharacteristic");
                             writeCharacteristic = characteristic;
                         } else if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {

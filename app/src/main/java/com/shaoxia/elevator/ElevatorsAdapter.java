@@ -285,9 +285,7 @@ public class ElevatorsAdapter extends PagerAdapter {
                     }
 
                     Intent intent = new Intent(mContext, desClass);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(deviceKey, mDevice);//序列化
-                    intent.putExtras(bundle);//发送数据
+                    intent.putExtra("device", mDevice);
                     intent.putExtra("title", mTitle.getText());
                     Logger.d(TAG, "onClick: mSelPosition =" + mSelPosition);
                     intent.putExtra("despos", mSelPosition);

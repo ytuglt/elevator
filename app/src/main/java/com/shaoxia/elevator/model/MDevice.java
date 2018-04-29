@@ -1,14 +1,14 @@
 package com.shaoxia.elevator.model;
 
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.clj.fastble.data.BleDevice;
 import com.shaoxia.elevator.MyApplication;
 import com.shaoxia.elevator.R;
-import com.shaoxia.elevator.log.Logger;
 
-import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +16,7 @@ import java.util.Map;
  * Created by gonglt1 on 18-1-20.
  */
 
-public class MDevice extends BleDevice implements Serializable {
+public class MDevice extends BleDevice {
     private static final String TAG = "MDevice";
     public final static int IDLE = 0;
     public final static int COMUNICATING = 1;
@@ -44,10 +44,63 @@ public class MDevice extends BleDevice implements Serializable {
         super();
     }
 
+    public MDevice(Parcel in) {
+        super(in);
+        rssi = in.readInt();
+        floor = in.readString();
+        elevatorId = in.readString();
+        devName = in.readString();
+        devAddress = in.readString();
+        isInCall = in.readByte() != 0;
+        isElevator = in.readByte() != 0;
+        mFloors = in.createStringArrayList();
+
+        int size = in.readInt();
+        if (mFloorsMap == null) {
+            mFloorsMap = new HashMap<>();
+        }
+        for(int i = 0; i < size; i++){
+            String key = in.readString();
+            Byte value = in.readByte();
+            mFloorsMap.put(key,value);
+        }
+    }
+
     public MDevice(BleDevice device) {
         super(device);
         parseName(device);
     }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+        dest.writeInt(rssi);
+        dest.writeString(floor);
+        dest.writeString(elevatorId);
+        dest.writeString(devName);
+        dest.writeString(devAddress);
+        dest.writeByte((byte) (isInCall ? 1 : 0));
+        dest.writeByte((byte) (isElevator ? 1 : 0));
+        dest.writeStringList(mFloors);
+
+        dest.writeInt(mFloorsMap.size());
+        for(Map.Entry<String,Byte> entry : mFloorsMap.entrySet()){
+            dest.writeString(entry.getKey());
+            dest.writeByte(entry.getValue());
+        }
+    }
+
+    public static final Parcelable.Creator<MDevice> CREATOR = new Parcelable.Creator<MDevice>() {
+        @Override
+        public MDevice createFromParcel(Parcel in) {
+            return new MDevice(in);
+        }
+
+        @Override
+        public MDevice[] newArray(int size) {
+            return new MDevice[size];
+        }
+    };
 
     private void parseName(BleDevice device) {
         devName = device.getName();

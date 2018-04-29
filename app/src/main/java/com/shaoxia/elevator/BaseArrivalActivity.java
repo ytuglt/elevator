@@ -43,7 +43,7 @@ public abstract class BaseArrivalActivity extends BaseActivity {
     }
 
     private void initData() {
-        mDevice = (MDevice) getIntent().getSerializableExtra("device");
+        mDevice = (MDevice) getIntent().getParcelableExtra("device");
         mDesPos = getIntent().getIntExtra("despos", -1);
         mElevatorId = getIntent().getStringExtra("id");
         mIsUp = getIntent().getBooleanExtra("isUp", true);

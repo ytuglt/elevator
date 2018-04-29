@@ -111,7 +111,7 @@ public class OutWaitingActivity extends BaseWaitingActivity {
             mBleComManager.destroy();
             Intent intent = new Intent(this, OutArrivalActivity.class);
             Bundle bundle = new Bundle();
-            bundle.putSerializable("device", mDevice);//序列化
+            bundle.putParcelable("device", mDevice);//序列化
             intent.putExtras(bundle);//发送数据
             intent.putExtra("despos", mDesPos);
             intent.putExtra("id", mDevice.getElevatorId());
