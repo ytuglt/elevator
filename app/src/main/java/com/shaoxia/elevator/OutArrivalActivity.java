@@ -55,7 +55,7 @@ public class OutArrivalActivity extends BaseArrivalActivity {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         Logger.d(TAG, "run: device name is : " + result.getName());
-                        MDevice mDev = new MDevice();
+                        MDevice mDev = new MDevice(result);
                         if (!mDev.isElevator()) {
                             Logger.d(TAG, "run: device is not elevator");
                             return;

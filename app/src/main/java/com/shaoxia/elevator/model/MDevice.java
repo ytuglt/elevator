@@ -83,10 +83,12 @@ public class MDevice extends BleDevice {
         dest.writeByte((byte) (isElevator ? 1 : 0));
         dest.writeStringList(mFloors);
 
-        dest.writeInt(mFloorsMap.size());
-        for(Map.Entry<String,Byte> entry : mFloorsMap.entrySet()){
-            dest.writeString(entry.getKey());
-            dest.writeByte(entry.getValue());
+        if(mFloorsMap != null) {
+            dest.writeInt(mFloorsMap.size());
+            for (Map.Entry<String, Byte> entry : mFloorsMap.entrySet()) {
+                dest.writeString(entry.getKey());
+                dest.writeByte(entry.getValue());
+            }
         }
     }
 
