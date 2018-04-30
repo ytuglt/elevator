@@ -31,6 +31,23 @@ public class FastBleManager {
 
     private STATE mState;
 
+    private android.os.Handler mHander;
+
+    private boolean mReceiveTimeOut = false;
+
+    private Runnable mReceiverTimerOutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Logger.e(TAG, "run: mReceiverTimerOutRunnable time out ");
+            mReceiveTimeOut = true;
+            disConnect();
+        }
+    };
+
+    public FastBleManager() {
+        mHander = new android.os.Handler();
+    }
+
     public static FastBleManager getInstance() {
         if (mInstance == null) {
             mInstance = new FastBleManager();
@@ -76,11 +93,26 @@ public class FastBleManager {
     private BluetoothGattCharacteristic writeCharacteristic;
     private BluetoothGattCharacteristic notifyCharacteristic;
 
-    public void sendData(byte[] data, BleDevice bleDevice, BleGattCallback connectCallBack, BleNotifyCallback notifyCallback) {
-        connect(data, bleDevice, connectCallBack, notifyCallback);
+    private byte[] data;
+    private BleDevice bleDevice;
+    private BleGattCallback connectCallBack;
+    private BleNotifyCallback notifyCallback;
+    private BleWriteCallback bleWriteCallback;
+
+    public void sendData(byte[] data, BleDevice bleDevice, BleGattCallback connectCallBack,
+                         BleNotifyCallback notifyCallback, BleWriteCallback bleWriteCallback) {
+        this.data = data;
+        this.bleDevice = bleDevice;
+        this.connectCallBack = connectCallBack;
+        this.notifyCallback = notifyCallback;
+        this.bleWriteCallback = bleWriteCallback;
+        connect(data, bleDevice, connectCallBack, notifyCallback, bleWriteCallback);
     }
 
-    private void connect(final byte[] data, BleDevice bleDevice, final BleGattCallback connectCallBack, final BleNotifyCallback notifyCallback) {
+    private void connect(final byte[] data, final BleDevice bleDevice,
+                         final BleGattCallback connectCallBack,
+                         final BleNotifyCallback notifyCallback,
+                         final BleWriteCallback bleWriteCallback) {
         if (!BleManager.getInstance().isConnected(bleDevice)) {
             BleManager.getInstance().connect(bleDevice, new BleGattCallback() {
                 @Override
@@ -93,6 +125,7 @@ public class FastBleManager {
                 public void onConnectFail(BleException exception) {
                     Logger.d(TAG, "onConnectFail: ");
                     connectCallBack.onConnectFail(exception);
+                    connect(data, bleDevice, connectCallBack, notifyCallback, bleWriteCallback);
                 }
 
                 @Override
@@ -115,7 +148,7 @@ public class FastBleManager {
                             notifyCharacteristic = characteristic;
                         }
                     }
-                    setMtu(data, bleDevice, 512, notifyCallback);
+                    setMtu(data, bleDevice, 512, notifyCallback, bleWriteCallback);
                 }
 
                 @Override
@@ -123,13 +156,20 @@ public class FastBleManager {
                     Logger.d(TAG, "onDisConnected: ");
                     FloorsLogic.getInstance().onBleDisconnected();
                     connectCallBack.onDisConnected(isActiveDisConnected, device, gatt, status);
+                    if (mReceiveTimeOut) {
+                        Logger.e(TAG, "run: onDisConnected  do resend  data ");
+                        mReceiveTimeOut = false;
+                        sendData(data, bleDevice, connectCallBack, notifyCallback, bleWriteCallback);
+                    }
                 }
             });
         }
 
     }
 
-    private void setMtu(final byte[] data, final BleDevice bleDevice, int mtu, final BleNotifyCallback notifyCallback) {
+    private void setMtu(final byte[] data, final BleDevice bleDevice, int mtu,
+                        final BleNotifyCallback notifyCallback,
+                        final BleWriteCallback bleWriteCallback) {
         BleManager.getInstance().setMtu(bleDevice, mtu, new BleMtuChangedCallback() {
             @Override
             public void onSetMTUFailure(BleException exception) {
@@ -139,12 +179,14 @@ public class FastBleManager {
             @Override
             public void onMtuChanged(int mtu) {
                 Logger.i(TAG, "onMtuChanged: " + mtu);
-                writeData(data, bleDevice, notifyCallback);
+                writeData(data, bleDevice, notifyCallback, bleWriteCallback);
             }
         });
     }
 
-    private void writeData(byte[] data, final BleDevice bleDevice, final BleNotifyCallback notifyCallback) {
+    private void writeData(byte[] data, final BleDevice bleDevice,
+                           final BleNotifyCallback notifyCallback,
+                           final BleWriteCallback bleWriteCallback) {
         BleManager.getInstance().write(
                 bleDevice,
                 writeCharacteristic.getService().getUuid().toString(),
@@ -158,23 +200,42 @@ public class FastBleManager {
                                 + " total: " + total
                                 + " justWrite: " + HexUtil.formatHexString(justWrite, true));
                         notifyStart(bleDevice, notifyCallback);
+                        bleWriteCallback.onWriteSuccess(current, total, justWrite);
+                        mHander.postDelayed(mReceiverTimerOutRunnable, 2000);
                     }
 
                     @Override
                     public void onWriteFailure(final BleException exception) {
                         Logger.d(TAG, "run: " + exception.toString());
+                        bleWriteCallback.onWriteFailure(exception);
                     }
                 });
 
 //        mHasReceiveData = false;
     }
 
-    private void notifyStart(BleDevice bleDevice, BleNotifyCallback notifyCallback) {
+    public void notifyStart(BleDevice bleDevice, final BleNotifyCallback notifyCallback) {
         BleManager.getInstance().notify(
                 bleDevice,
                 notifyCharacteristic.getService().getUuid().toString(),
                 notifyCharacteristic.getUuid().toString(),
-                notifyCallback);
+                new BleNotifyCallback() {
+                    @Override
+                    public void onNotifySuccess() {
+                        notifyCallback.onNotifySuccess();
+                    }
+
+                    @Override
+                    public void onNotifyFailure(BleException exception) {
+                        notifyCallback.onNotifyFailure(exception);
+                    }
+
+                    @Override
+                    public void onCharacteristicChanged(byte[] data) {
+                        mHander.removeCallbacks(mReceiverTimerOutRunnable);
+                        notifyCallback.onCharacteristicChanged(data);
+                    }
+                });
     }
 
     public void close() {

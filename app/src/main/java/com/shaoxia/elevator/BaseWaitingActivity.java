@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.clj.fastble.callback.BleGattCallback;
 import com.clj.fastble.callback.BleNotifyCallback;
+import com.clj.fastble.callback.BleWriteCallback;
 import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.exception.BleException;
 import com.shaoxia.elevator.bluetoothle.BleComManager;
@@ -111,8 +112,8 @@ public abstract class BaseWaitingActivity extends BaseActivity {
     protected void onPause() {
         super.onPause();
         Logger.d(TAG, "onPause: ");
-        mFastBleManager.disConnect();
-        mFastBleManager.close();
+//        mFastBleManager.disConnect();
+//        mFastBleManager.close();
         mFastBleManager.setState(FastBleManager.STATE.IDLE);
     }
 
@@ -135,7 +136,7 @@ public abstract class BaseWaitingActivity extends BaseActivity {
             Logger.d(TAG, "sendData: not idle");
             return;
         }
-        FastBleManager.getInstance().sendData(cmd, getComDevice(),  new BleGattCallback() {
+        FastBleManager.getInstance().sendData(cmd, getComDevice(), new BleGattCallback() {
 
             @Override
             public void onStartConnect() {
@@ -159,7 +160,7 @@ public abstract class BaseWaitingActivity extends BaseActivity {
                 onBleDisconnected();
                 mFastBleManager.setState(FastBleManager.STATE.IDLE);
             }
-        },  new BleNotifyCallback() {
+        }, new BleNotifyCallback() {
 
             @Override
             public void onNotifySuccess() {
@@ -174,6 +175,16 @@ public abstract class BaseWaitingActivity extends BaseActivity {
             @Override
             public void onCharacteristicChanged(byte[] data) {
                 onReceiveData(data);
+            }
+        }, new BleWriteCallback() {
+            @Override
+            public void onWriteSuccess(int current, int total, byte[] justWrite) {
+
+            }
+
+            @Override
+            public void onWriteFailure(BleException exception) {
+
             }
         });
     }

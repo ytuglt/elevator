@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.clj.fastble.callback.BleGattCallback;
 import com.clj.fastble.callback.BleNotifyCallback;
 import com.clj.fastble.callback.BleScanCallback;
+import com.clj.fastble.callback.BleWriteCallback;
 import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.exception.BleException;
 import com.clj.fastble.utils.HexUtil;
@@ -141,9 +142,9 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
     protected void onPause() {
         super.onPause();
         Logger.d(TAG, "onPause: ");
-        mFastBleManager.stopScan();
-        mFastBleManager.disConnect();
-        mFastBleManager.close();
+//        mFastBleManager.stopScan();
+//        mFastBleManager.disConnect();
+//        mFastBleManager.close();
         mFastBleManager.setState(FastBleManager.STATE.IDLE);
     }
 
@@ -184,6 +185,49 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
         }
     }
 
+    private BleNotifyCallback bleNotifyCallback = new BleNotifyCallback() {
+        //
+        @Override
+        public void onNotifySuccess() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Logger.d(TAG, "onNotifySuccess: notify success");
+                }
+            });
+        }
+
+        @Override
+        public void onNotifyFailure(final BleException exception) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Logger.d(TAG, "onNotifyFailure: " + exception.toString());
+//                    mFastBleManager.disConnect();
+//                    mFastBleManager.close();
+//                    getFloorInfo(mCurPosition);
+                }
+            });
+        }
+
+        @Override
+        public void onCharacteristicChanged(final byte[] data) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Logger.d(TAG, "onCharacteristicChanged: " + HexUtil.formatHexString(data));
+                    Logger.d(TAG, "onCharacteristicChanged: size = " + mDevices.size()
+                            + ", curposition = " + mCurPosition);
+                    if (FloorsLogic.getInstance().onReceiveData(
+                            data,
+                            mDevices.get(mCurPosition))) {
+                        updateWheel();
+                    }
+                }
+            });
+        }
+    };
+
     private void getFloorInfo(int position) {
         FloorsLogic.getInstance().getFloorInfo(position, mDevices, new BleGattCallback() {
 
@@ -206,44 +250,19 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
                     public void onDisConnected(boolean isActiveDisConnected, BleDevice device, BluetoothGatt gatt, int status) {
                         onBleDisconnected();
                     }
-                },
-                new BleNotifyCallback() {
-                    //
+                }, bleNotifyCallback,
+                new BleWriteCallback() {
                     @Override
-                    public void onNotifySuccess() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Logger.d(TAG, "onNotifySuccess: notify success");
-                            }
-                        });
+                    public void onWriteSuccess(int current, int total, byte[] justWrite) {
+
                     }
 
                     @Override
-                    public void onNotifyFailure(final BleException exception) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Logger.d(TAG, "onNotifyFailure: " + exception.toString());
-                            }
-                        });
-                    }
+                    public void onWriteFailure(BleException exception) {
 
-                    @Override
-                    public void onCharacteristicChanged(final byte[] data) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Logger.d(TAG, "onCharacteristicChanged: " + HexUtil.formatHexString(data));
-                                if (FloorsLogic.getInstance().onReceiveData(
-                                        data,
-                                        mDevices.get(mCurPosition))) {
-                                    updateWheel();
-                                }
-                            }
-                        });
                     }
-                });
+                }
+        );
     }
 
     @Override

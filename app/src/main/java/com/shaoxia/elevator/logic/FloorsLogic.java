@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.clj.fastble.callback.BleGattCallback;
 import com.clj.fastble.callback.BleNotifyCallback;
+import com.clj.fastble.callback.BleWriteCallback;
 import com.clj.fastble.data.BleDevice;
 import com.shaoxia.elevator.fastble.FastBleManager;
 import com.shaoxia.elevator.log.Logger;
@@ -61,7 +62,8 @@ public class FloorsLogic {
         return true;
     }
 
-    public void getFloorInfo(int position, List<MDevice> devices, BleGattCallback connectCallBack, final BleNotifyCallback notifyCallback) {
+    public void getFloorInfo(int position, List<MDevice> devices, BleGattCallback connectCallBack,
+                             final BleNotifyCallback notifyCallback, BleWriteCallback bleWriteCallback) {
         Logger.d(TAG, "getFloorInfo: ");
         if (FastBleManager.getInstance().getState() != FastBleManager.STATE.IDLE) {
             Logger.d(TAG, "getFloorInfo: is comunicating");
@@ -78,7 +80,8 @@ public class FloorsLogic {
         cmd[1] = (byte) 0x00;
         cmd[2] = (byte) 0xb4;
 //        connect(mCurDevice);
-        FastBleManager.getInstance().sendData(cmd, mCurDevice, connectCallBack, notifyCallback);
+        FastBleManager.getInstance().sendData(cmd, mCurDevice, connectCallBack,
+                notifyCallback, bleWriteCallback);
     }
 
 

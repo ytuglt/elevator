@@ -45,7 +45,7 @@ public class BleManager {
     private BluetoothAdapter bluetoothAdapter;
     private MultipleBluetoothController multipleBluetoothController;
 
-    public static final int DEFAULT_SCAN_TIME = 10000;
+    public static final int DEFAULT_SCAN_TIME = 5000;
     private static final int DEFAULT_MAX_MULTIPLE_DEVICE = 7;
     private static final int DEFAULT_OPERATE_TIME = 5000;
     private static final int DEFAULT_MTU = 23;
