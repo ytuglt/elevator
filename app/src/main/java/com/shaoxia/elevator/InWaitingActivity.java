@@ -3,7 +3,6 @@ package com.shaoxia.elevator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.model.MDevice;
@@ -63,23 +62,6 @@ public class InWaitingActivity extends BaseWaitingActivity {
     }
 
     @Override
-    protected void call() {
-        Logger.d(TAG, "call: ");
-        mBleComManager.setDevAddress(mCopDevice.getDevAddress());
-        mBleComManager.setDevName(mCopDevice.getDevName());
-
-        getFloor();
-        byte[] cmd = new byte[4];
-        cmd[0] = (byte) 0xb5;
-        cmd[1] = mRealFloor;
-        cmd[2] = (byte) 0x00;
-        cmd[3] = (byte) 0x00;
-        cmd[3] = VerifyUtils.getCheckNum(cmd);
-
-        mBleComManager.sendData(cmd);
-    }
-
-    @Override
     protected void updateAnimView() {
         if (mEnterFrom == ENTER_FORM_OUTARRIVAL) {
             super.updateAnimView();
@@ -89,15 +71,19 @@ public class InWaitingActivity extends BaseWaitingActivity {
     }
 
     @Override
-    protected void getStatus() {
-        Logger.d(TAG, "getStatus: ");
-        if (mIsComunicating) {
-            Logger.d(TAG, "getStatus: is comunicating");
-            return;
-        }
-        mBleComManager.setDevAddress(mCopDevice.getDevAddress());
-        mBleComManager.setDevName(mCopDevice.getDevName());
+    protected byte[] getCallData() {
+        getFloor();
+        byte[] cmd = new byte[4];
+        cmd[0] = (byte) 0xb5;
+        cmd[1] = mRealFloor;
+        cmd[2] = (byte) 0x00;
+        cmd[3] = (byte) 0x00;
+        cmd[3] = VerifyUtils.getCheckNum(cmd);
+        return cmd;
+    }
 
+    @Override
+    protected byte[] getQueryData() {
         getFloor();
         byte[] cmd = new byte[4];
         cmd[0] = (byte) 0xb5;
@@ -105,8 +91,12 @@ public class InWaitingActivity extends BaseWaitingActivity {
         cmd[2] = (byte) 0x80;
         cmd[3] = (byte) 0x00;
         cmd[3] = VerifyUtils.getCheckNum(cmd);
+        return cmd;
+    }
 
-        mBleComManager.sendData(cmd);
+    @Override
+    protected MDevice getComDevice() {
+        return mCopDevice;
     }
 
     @Override
@@ -133,7 +123,6 @@ public class InWaitingActivity extends BaseWaitingActivity {
     @Override
     protected void parseData(byte[] array) {
         if (array[1] == (byte) 0x00) {
-            mBleComManager.destroy();
             MDevice device;
 
             if (mEnterFrom == ENTER_FORM_SPLASH) {

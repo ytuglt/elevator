@@ -1,5 +1,6 @@
 package com.shaoxia.elevator;
 
+import android.bluetooth.BluetoothGatt;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,8 +11,14 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.clj.fastble.callback.BleGattCallback;
+import com.clj.fastble.callback.BleNotifyCallback;
+import com.clj.fastble.data.BleDevice;
+import com.clj.fastble.exception.BleException;
 import com.shaoxia.elevator.bluetoothle.BleComManager;
+import com.shaoxia.elevator.fastble.FastBleManager;
 import com.shaoxia.elevator.log.Logger;
+import com.shaoxia.elevator.logic.FloorsLogic;
 import com.shaoxia.elevator.logic.LightFloorLogic;
 import com.shaoxia.elevator.model.MDevice;
 import com.shaoxia.elevator.utils.StringUtils;
@@ -23,7 +30,7 @@ import java.util.List;
  * Created by gonglt1 on 18-3-9.
  */
 
-public abstract class BaseWaitingActivity extends BaseActivity implements BleComManager.OnComListener {
+public abstract class BaseWaitingActivity extends BaseActivity {
     private static final String TAG = "BaseWaitingActivity";
 
     public static final String DEVICE_KEY = "device";
@@ -33,12 +40,10 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
     protected MDevice mDevice;
     protected boolean mIsUp;
     protected int mDesPos;
-    protected BleComManager mBleComManager;
     private Handler mHandler;
-
-    protected boolean mIsComunicating;
-
     protected TextView mTitleView;
+
+    private FastBleManager mFastBleManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,8 +62,9 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
 
         LightFloorLogic.updateFloorsView(this, mDevice, getLightPos());
 
-        mBleComManager = BleComManager.getInstance(this);
-        mBleComManager.setOnComListener(this);
+        mFastBleManager = FastBleManager.getInstance();
+        mFastBleManager.init();
+
         mHandler = new Handler();
 
         call();
@@ -98,8 +104,6 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
     protected void onResume() {
         super.onResume();
         Logger.d(TAG, "onResume: ");
-        mBleComManager = BleComManager.getInstance(this);
-        mBleComManager.setOnComListener(this);
         getStatus();
     }
 
@@ -107,42 +111,84 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
     protected void onPause() {
         super.onPause();
         Logger.d(TAG, "onPause: ");
-        if (mBleComManager != null) {
-            mIsComunicating = false;
-            mBleComManager.disconnect();
-            mBleComManager.destroy();
-        }
+        mFastBleManager.disConnect();
+        mFastBleManager.setState(FastBleManager.STATE.IDLE);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Logger.d(TAG, "onDestroy: ");
-        mIsComunicating = false;
-//        if (mBleComManager != null) {
-//            mBleComManager.destroy();
-//        }
     }
 
-    protected abstract void call();
+    protected void call(){
+        sendData(getCallData());
+    }
 
-    protected abstract void getStatus();
+    protected void getStatus(){
+        sendData(getQueryData());
+    }
 
-    @Override
+    private void sendData(byte[] cmd) {
+        if (mFastBleManager.getState() != FastBleManager.STATE.IDLE) {
+            Logger.d(TAG, "sendData: not idle");
+            return;
+        }
+        FastBleManager.getInstance().sendData(cmd, getComDevice(),  new BleGattCallback() {
+
+            @Override
+            public void onStartConnect() {
+                mFastBleManager.setState(FastBleManager.STATE.CONNECTING);
+                onCommunicating();
+            }
+
+            @Override
+            public void onConnectFail(BleException exception) {
+                onConnectFailed();
+                mFastBleManager.setState(FastBleManager.STATE.IDLE);
+            }
+
+            @Override
+            public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
+
+            }
+
+            @Override
+            public void onDisConnected(boolean isActiveDisConnected, BleDevice device, BluetoothGatt gatt, int status) {
+                onBleDisconnected();
+                mFastBleManager.setState(FastBleManager.STATE.IDLE);
+            }
+        },  new BleNotifyCallback() {
+
+            @Override
+            public void onNotifySuccess() {
+
+            }
+
+            @Override
+            public void onNotifyFailure(BleException exception) {
+
+            }
+
+            @Override
+            public void onCharacteristicChanged(byte[] data) {
+                onReceiveData(data);
+            }
+        });
+    }
+
+    protected abstract byte[] getCallData();
+
+    protected abstract byte[] getQueryData();
+
+    protected abstract MDevice getComDevice();
+
     public void onCommunicating() {
         Logger.d(TAG, "onCommunicating: ");
-        mIsComunicating = true;
     }
 
-    @Override
-    public void onWriteSuccess() {
-        Logger.d(TAG, "onWriteSuccess: ");
-    }
-
-    @Override
     public void onBleDisconnected() {
         Logger.d(TAG, "onBleDisconnected: ");
-        mIsComunicating = false;
         if (this.isFinishing()) {
             Logger.d(TAG, "onBleDisconnected: isFinishing");
             return;
@@ -155,17 +201,13 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
         }, QUERY_INTERVAL);
     }
 
-    @Override
     public void onConnectFailed() {
         Logger.d(TAG, "onConnectFailed: ");
     }
 
-    @Override
     public void onReceiveData(byte[] array) {
         Logger.d(TAG, "onReceiveData: " + StringUtils.ByteArraytoHex(array));
-        if (mBleComManager != null) {
-            mBleComManager.disconnect();
-        }
+        mFastBleManager.disConnect();
         if (!checkData(array)) {
             Log.d(TAG, "onReceiveData: checkdata errror");
             return;

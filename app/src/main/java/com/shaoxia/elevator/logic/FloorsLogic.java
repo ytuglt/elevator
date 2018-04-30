@@ -1,25 +1,15 @@
 package com.shaoxia.elevator.logic;
 
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.os.Handler;
 import android.util.Log;
 
-import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleGattCallback;
-import com.clj.fastble.callback.BleMtuChangedCallback;
 import com.clj.fastble.callback.BleNotifyCallback;
-import com.clj.fastble.callback.BleWriteCallback;
 import com.clj.fastble.data.BleDevice;
-import com.clj.fastble.exception.BleException;
-import com.clj.fastble.utils.HexUtil;
-import com.shaoxia.elevator.MyApplication;
 import com.shaoxia.elevator.fastble.FastBleManager;
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.model.MDevice;
 import com.shaoxia.elevator.utils.CoderUtils;
-import com.shaoxia.elevator.utils.Configure;
 import com.shaoxia.elevator.utils.StringUtils;
 import com.shaoxia.elevator.utils.VerifyUtils;
 
@@ -28,7 +18,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class FloorsLogic {
     private static final String TAG = "FloorsLogic";
@@ -122,7 +111,8 @@ public class FloorsLogic {
         mHasReceivelength += array.length;
 
         if (mDataLenth == mHasReceivelength) {
-            BleManager.getInstance().disconnect(device);
+//            BleManager.getInstance().disconnect(device);
+            FastBleManager.getInstance().disConnect();
             if (!checkData(mReceiveData)) {
                 Log.d(TAG, "onReceiveData: checkdata errror");
                 return false;

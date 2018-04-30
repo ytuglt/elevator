@@ -1,65 +1,34 @@
 package com.shaoxia.elevator;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.widget.Toast;
 
-import com.shaoxia.elevator.bluetoothle.BleScanManager;
+import com.clj.fastble.callback.BleScanCallback;
+import com.clj.fastble.data.BleDevice;
+import com.shaoxia.elevator.fastble.FastBleManager;
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.model.MDevice;
+
+import java.util.List;
 
 /**
  * Created by gonglt1 on 18-3-13.
  */
 
-public class OutArrivalActivity extends BaseArrivalActivity implements BleScanManager.OnStopScanListener {
+public class OutArrivalActivity extends BaseArrivalActivity {
     private static final String TAG = "OutArrivalActivity";
     private static final int SCANTIME = 20000;
-
-    private BleScanManager mBleScanManager;
-
     private MDevice mCopDevice;
 
-    /**
-     * 发现设备时 处理方法
-     */
-    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
-
-        @Override
-        public void onLeScan(final BluetoothDevice device, final int rssi,
-                             byte[] scanRecord) {
-            runOnUiThread(new Runnable() {
-                public void run() {
-                    Logger.d(TAG, "run: device name is : " + device.getName());
-                    MDevice mDev = new MDevice();
-                    if (!mDev.isElevator()) {
-                        Logger.d(TAG, "run: device is not elevator");
-                        return;
-                    }
-                    Logger.d(TAG, "run: add device" + mDev.getDevName());
-
-                    if (mDev.isInCall()) {
-                        mCopDevice = mDev;
-                        mBleScanManager.stopScan();
-                        onFindCopDevice();
-                    }
-                }
-            });
-        }
-    };
+    private FastBleManager mFastBleManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBleScanManager = BleScanManager.getInstance(this);
-        mBleScanManager.setOnStopScanListener(this);
-        mBleScanManager.setLeScanCallback(mLeScanCallback);
-        mBleScanManager.setScanTime(SCANTIME);
-
+        mFastBleManager = FastBleManager.getInstance();
+        mFastBleManager.init();
     }
 
     @Override
@@ -71,15 +40,51 @@ public class OutArrivalActivity extends BaseArrivalActivity implements BleScanMa
     protected void onResume() {
         super.onResume();
         Logger.d(TAG, "onResume: ");
-        mBleScanManager.startScan();
+        startScan();
+    }
+
+    private void startScan() {
+        FastBleManager.getInstance().startScan(new BleScanCallback() {
+            @Override
+            public void onScanStarted(boolean success) {
+                mFastBleManager.setState(FastBleManager.STATE.SCANNING);
+            }
+
+            @Override
+            public void onScanning(final BleDevice result) {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Logger.d(TAG, "run: device name is : " + result.getName());
+                        MDevice mDev = new MDevice();
+                        if (!mDev.isElevator()) {
+                            Logger.d(TAG, "run: device is not elevator");
+                            return;
+                        }
+                        Logger.d(TAG, "run: add device" + mDev.getDevName());
+
+                        if (mDev.isInCall()) {
+                            mCopDevice = mDev;
+                            mFastBleManager.stopScan();
+                            onFindCopDevice();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onScanFinished(List<BleDevice> scanResultList) {
+                if (mFastBleManager.getState() == FastBleManager.STATE.SCANNING) {
+                    mFastBleManager.setState(FastBleManager.STATE.IDLE);
+                    onStopScan();
+                }
+            }
+        });
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (mBleScanManager != null) {
-            mBleScanManager.stopScan();
-        }
+        mFastBleManager.stopScan();
         mCopDevice = null;
     }
 
@@ -87,12 +92,8 @@ public class OutArrivalActivity extends BaseArrivalActivity implements BleScanMa
     protected void onDestroy() {
         super.onDestroy();
         Logger.d(TAG, "onDestroy: ");
-        if (mBleScanManager != null) {
-            mBleScanManager.destroy();
-        }
     }
 
-    @Override
     public void onStopScan() {
         if (mCopDevice == null) {
             Logger.d(TAG, "onStopScan: No Cop Device Find, finish...");

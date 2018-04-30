@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.shaoxia.elevator.log.Logger;
+import com.shaoxia.elevator.model.MDevice;
 import com.shaoxia.elevator.utils.VerifyUtils;
 
 import java.util.List;
@@ -41,10 +42,7 @@ public class OutWaitingActivity extends BaseWaitingActivity {
     }
 
     @Override
-    protected void call() {
-        Logger.d(TAG, "call: ");
-        mBleComManager.setDevAddress(mDevice.getDevAddress());
-        mBleComManager.setDevName(mDevice.getDevName());
+    protected byte[] getCallData() {
         byte[] cmd = new byte[3];
         cmd[0] = (byte) 0xb5;
         if (mIsUp) {
@@ -54,24 +52,21 @@ public class OutWaitingActivity extends BaseWaitingActivity {
             cmd[1] = (byte) 0x02;
             cmd[2] = (byte) 0xb7;
         }
-
-        mBleComManager.sendData(cmd);
+        return cmd;
     }
 
     @Override
-    protected void getStatus() {
-        Logger.d(TAG, "getStatus: ");
-        if (mIsComunicating) {
-            Logger.d(TAG, "getStatus: is comunicating");
-            return;
-        }
-        mBleComManager.setDevAddress(mDevice.getDevAddress());
-        mBleComManager.setDevName(mDevice.getDevName());
+    protected byte[] getQueryData() {
         byte[] cmd = new byte[3];
         cmd[0] = (byte) 0xb5;
         cmd[1] = (byte) 0x00;
         cmd[2] = (byte) 0xb5;
-        mBleComManager.sendData(cmd);
+        return cmd;
+    }
+
+    @Override
+    protected MDevice getComDevice() {
+        return mDevice;
     }
 
     @Override
@@ -108,7 +103,6 @@ public class OutWaitingActivity extends BaseWaitingActivity {
 
         if (isOff) {
 //            mBleComManager.disconnect();
-            mBleComManager.destroy();
             Intent intent = new Intent(this, OutArrivalActivity.class);
             Bundle bundle = new Bundle();
             bundle.putParcelable("device", mDevice);//序列化

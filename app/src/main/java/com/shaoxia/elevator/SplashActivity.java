@@ -193,7 +193,6 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
                     @Override
                     public void onConnectFail(BleException exception) {
                         onConnectFailed();
-
                     }
 
                     @Override
