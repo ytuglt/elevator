@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.clj.fastble.callback.BleGattCallback;
 import com.clj.fastble.callback.BleNotifyCallback;
@@ -148,6 +149,12 @@ public abstract class BaseWaitingActivity extends BaseActivity {
             public void onConnectFail(BleException exception) {
                 onConnectFailed();
                 mFastBleManager.setState(FastBleManager.STATE.IDLE);
+                if (mFastBleManager.getReconnectCount() >= FastBleManager.RECONNECT_TIMES) {
+                    mFastBleManager.disConnect();
+                    mFastBleManager.close();
+                    Toast.makeText(BaseWaitingActivity.this, "建立连接失败", Toast.LENGTH_SHORT);
+                    finish();
+                }
             }
 
             @Override

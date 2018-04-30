@@ -239,6 +239,11 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
                     @Override
                     public void onConnectFail(BleException exception) {
                         onConnectFailed();
+                        if (mFastBleManager.getReconnectCount() >= FastBleManager.RECONNECT_TIMES) {
+                            mFastBleManager.disConnect();
+                            mFastBleManager.close();
+                            startScan();
+                        }
                     }
 
                     @Override

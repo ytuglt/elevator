@@ -3,7 +3,6 @@ package com.shaoxia.elevator.fastble;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
-import android.util.Log;
 
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleGattCallback;
@@ -24,6 +23,8 @@ import java.util.UUID;
 public class FastBleManager {
     private static final String TAG = "FastBleManager";
     private static FastBleManager mInstance;
+
+    public static  final  int RECONNECT_TIMES = 3;
 
     public enum STATE {
         IDLE, SCANNING, CONNECTING
@@ -99,6 +100,12 @@ public class FastBleManager {
     private BleNotifyCallback notifyCallback;
     private BleWriteCallback bleWriteCallback;
 
+    private int reconnectCount = 0;
+
+    public int getReconnectCount() {
+        return reconnectCount;
+    }
+
     public void sendData(byte[] data, BleDevice bleDevice, BleGattCallback connectCallBack,
                          BleNotifyCallback notifyCallback, BleWriteCallback bleWriteCallback) {
         this.data = data;
@@ -124,13 +131,19 @@ public class FastBleManager {
                 @Override
                 public void onConnectFail(BleException exception) {
                     Logger.d(TAG, "onConnectFail: ");
+                    reconnectCount++;
                     connectCallBack.onConnectFail(exception);
+                    if (reconnectCount >= RECONNECT_TIMES) {
+                        Logger.d(TAG, "onConnectFail: do not reconnect ");
+                        return;
+                    }
                     connect(data, bleDevice, connectCallBack, notifyCallback, bleWriteCallback);
                 }
 
                 @Override
                 public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
                     Logger.d(TAG, "onConnectSuccess: ");
+                    reconnectCount = 0;
                     BluetoothGattService service = gatt.getService(UUID.fromString(Configure.SERVICE_UUID));
                     if (service == null) {
                         Logger.d(TAG, "onConnectSuccess: service is null");

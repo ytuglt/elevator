@@ -3,6 +3,7 @@ package com.shaoxia.elevator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.shaoxia.elevator.log.Logger;
 import com.shaoxia.elevator.model.MDevice;
@@ -122,6 +123,10 @@ public class InWaitingActivity extends BaseWaitingActivity {
 
     @Override
     protected void parseData(byte[] array) {
+        if (isFinishing()) {
+            Logger.d(TAG, "parseData: is finishing");
+            return;
+        }
         if (array[1] == (byte) 0x00) {
             MDevice device;
 
