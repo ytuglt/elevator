@@ -34,12 +34,22 @@ public class FastBleManager {
     private android.os.Handler mHander;
 
     private boolean mReceiveTimeOut = false;
+    private boolean mConnectTimeOut = false;
 
     private Runnable mReceiverTimerOutRunnable = new Runnable() {
         @Override
         public void run() {
             Logger.e(TAG, "run: mReceiverTimerOutRunnable time out ");
             mReceiveTimeOut = true;
+            disConnect();
+        }
+    };
+
+    private Runnable mConnectTimeOutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Logger.e(TAG, "run: mConnectTimeOutRunnable time out ");
+            mConnectTimeOut = true;
             disConnect();
         }
     };
@@ -119,6 +129,7 @@ public class FastBleManager {
                 public void onStartConnect() {
                     Logger.d(TAG, "onStartConnect: ");
                     connectCallBack.onStartConnect();
+                    mHander.postDelayed(mConnectTimeOutRunnable, 7000);
                 }
 
                 @Override
@@ -131,7 +142,7 @@ public class FastBleManager {
                 @Override
                 public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
                     Logger.d(TAG, "onConnectSuccess: ");
-
+                    mHander.removeCallbacks(mConnectTimeOutRunnable);
                     BluetoothGattService service = gatt.getService(UUID.fromString(Configure.SERVICE_UUID));
                     if (service == null) {
                         Logger.d(TAG, "onConnectSuccess: service is null");
@@ -156,9 +167,10 @@ public class FastBleManager {
                     Logger.d(TAG, "onDisConnected: ");
                     FloorsLogic.getInstance().onBleDisconnected();
                     connectCallBack.onDisConnected(isActiveDisConnected, device, gatt, status);
-                    if (mReceiveTimeOut) {
+                    if (mReceiveTimeOut || mConnectTimeOut) {
                         Logger.e(TAG, "run: onDisConnected  do resend  data ");
                         mReceiveTimeOut = false;
+                        mConnectTimeOut = false;
                         sendData(data, bleDevice, connectCallBack, notifyCallback, bleWriteCallback);
                     }
                 }
