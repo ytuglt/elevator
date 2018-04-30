@@ -196,7 +196,7 @@ public class BleBluetooth {
         }
     }
 
-    private synchronized void closeBluetoothGatt() {
+    public synchronized void closeBluetoothGatt() {
         if (bluetoothGatt != null) {
             bluetoothGatt.close();
         }
@@ -364,7 +364,7 @@ public class BleBluetooth {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
-
+            BleLog.i("BluetoothGattCallback：onCharacteristicChanged ");
             Iterator iterator = bleNotifyCallbackHashMap.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry entry = (Map.Entry) iterator.next();
@@ -411,7 +411,7 @@ public class BleBluetooth {
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             super.onDescriptorWrite(gatt, descriptor, status);
-
+            BleLog.i("BluetoothGattCallback：onDescriptorWrite ");
             Iterator iterator = bleNotifyCallbackHashMap.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry entry = (Map.Entry) iterator.next();
@@ -458,6 +458,7 @@ public class BleBluetooth {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
+            BleLog.i("BluetoothGattCallback：onCharacteristicWrite ");
 
             Iterator iterator = bleWriteCallbackHashMap.entrySet().iterator();
             while (iterator.hasNext()) {
@@ -485,6 +486,7 @@ public class BleBluetooth {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicRead(gatt, characteristic, status);
+            BleLog.i("BluetoothGattCallback：onCharacteristicRead ");
 
             Iterator iterator = bleReadCallbackHashMap.entrySet().iterator();
             while (iterator.hasNext()) {
@@ -512,6 +514,7 @@ public class BleBluetooth {
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             super.onReadRemoteRssi(gatt, rssi, status);
+            BleLog.i("BluetoothGattCallback：onReadRemoteRssi ");
 
             if (bleRssiCallback != null) {
                 Handler handler = bleRssiCallback.getHandler();
@@ -531,6 +534,7 @@ public class BleBluetooth {
         @Override
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
             super.onMtuChanged(gatt, mtu, status);
+            BleLog.i("BluetoothGattCallback：onMtuChanged ");
 
             if (bleMtuChangedCallback != null) {
                 Handler handler = bleMtuChangedCallback.getHandler();

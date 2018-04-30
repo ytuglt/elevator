@@ -700,5 +700,11 @@ public class BleManager {
         }
     }
 
+    public void close() {
+        if (multipleBluetoothController != null) {
+            multipleBluetoothController.close();
+        }
+    }
+
 
 }

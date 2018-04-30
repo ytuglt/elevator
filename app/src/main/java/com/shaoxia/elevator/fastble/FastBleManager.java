@@ -44,6 +44,7 @@ public class FastBleManager {
                 .enableLog(true)
                 .setMaxConnectCount(1)
                 .setOperateTimeout(5000);
+        setState(STATE.IDLE);
     }
 
     public void startScan(BleScanCallback callback) {
@@ -176,5 +177,8 @@ public class FastBleManager {
                 notifyCallback);
     }
 
+    public void close() {
+        BleManager.getInstance().close();
+    }
 
 }

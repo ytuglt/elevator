@@ -82,6 +82,13 @@ public class MultipleBluetoothController {
         bleLruHashMap.clear();
     }
 
+    public synchronized void close() {
+        for (Map.Entry<String, BleBluetooth> stringBleBluetoothEntry : bleLruHashMap.entrySet()) {
+            stringBleBluetoothEntry.getValue().closeBluetoothGatt();
+        }
+        bleLruHashMap.clear();
+    }
+
     public synchronized List<BleBluetooth> getBleBluetoothList() {
         List<BleBluetooth> bleBluetoothList = new ArrayList<>(bleLruHashMap.values());
         Collections.sort(bleBluetoothList, new Comparator<BleBluetooth>() {

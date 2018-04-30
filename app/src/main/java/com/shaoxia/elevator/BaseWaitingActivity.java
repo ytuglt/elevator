@@ -112,6 +112,7 @@ public abstract class BaseWaitingActivity extends BaseActivity {
         super.onPause();
         Logger.d(TAG, "onPause: ");
         mFastBleManager.disConnect();
+        mFastBleManager.close();
         mFastBleManager.setState(FastBleManager.STATE.IDLE);
     }
 

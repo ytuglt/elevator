@@ -89,6 +89,7 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
     protected void onResume() {
         super.onResume();
         Logger.d(TAG, "onResume: ");
+        mFastBleManager.destroy();
         clearDevices();
         PermissionUtils.checkPermissions(this, this);
     }
@@ -142,6 +143,7 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
         Logger.d(TAG, "onPause: ");
         mFastBleManager.stopScan();
         mFastBleManager.disConnect();
+        mFastBleManager.close();
         mFastBleManager.setState(FastBleManager.STATE.IDLE);
     }
 
