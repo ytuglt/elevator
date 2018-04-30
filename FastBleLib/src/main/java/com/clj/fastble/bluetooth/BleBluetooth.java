@@ -271,6 +271,24 @@ public class BleBluetooth {
         }
     }
 
+    private Runnable mConnectTimeOutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            BleLog.e("BleBluetooth : run: mConnectTimeOutRunnable time out ");
+            if (isMainThread) {
+                Message message = handler.obtainMessage();
+                message.what = BleMsg.MSG_CONNECT_FAIL;
+                message.obj = new BleConnectStateParameter(bleGattCallback, null, 0);
+                handler.sendMessage(message);
+            } else {
+                if (bleGattCallback != null)
+                    bleGattCallback.onConnectFail(new ConnectException(null, 0));
+            }
+        }
+    };
+
+    private Handler mHandler = new Handler();
+
 
     private BluetoothGattCallback coreGattCallback = new BluetoothGattCallback() {
 
@@ -284,7 +302,7 @@ public class BleBluetooth {
 
             if (newState == BluetoothGatt.STATE_CONNECTED) {
                 gatt.discoverServices();
-
+                mHandler.postDelayed(mConnectTimeOutRunnable, 15000);
             } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
                 closeBluetoothGatt();
                 BleManager.getInstance().getMultipleBluetoothController().removeBleBluetooth(BleBluetooth.this);
@@ -327,7 +345,7 @@ public class BleBluetooth {
             BleLog.i("BluetoothGattCallback：onServicesDiscovered "
                     + '\n' + "status: " + status
                     + '\n' + "currentThread: " + Thread.currentThread().getId());
-
+            mHandler.removeCallbacks(mConnectTimeOutRunnable);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 bluetoothGatt = gatt;
                 connectState = BleConnectState.CONNECT_CONNECTED;

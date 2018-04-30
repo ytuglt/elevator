@@ -84,7 +84,7 @@ public class OutArrivalActivity extends BaseArrivalActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mFastBleManager.stopScan();
+//        mFastBleManager.stopScan();
         mCopDevice = null;
     }
 

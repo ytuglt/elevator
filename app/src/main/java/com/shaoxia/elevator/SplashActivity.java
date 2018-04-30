@@ -345,6 +345,8 @@ public class SplashActivity extends BaseActivity implements ElevatorsAdapter.OnR
                 Toast.makeText(this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
                 isFirstBack = false;
                 return false;
+            } else {
+                mFastBleManager.destroy();
             }
         }
         return super.onKeyDown(keyCode, event);
