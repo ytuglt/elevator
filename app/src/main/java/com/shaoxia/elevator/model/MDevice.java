@@ -61,7 +61,7 @@ public class MDevice implements Serializable {
 //            Logger.d(TAG, "parseName:floor =" + floor);
 //            elevatorId = "XXX";
 //            isElevator = true;
-//            isInCall = true;
+//            isInCall = false;
 //            return;
 //        }
 //        //TODO

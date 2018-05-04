@@ -133,7 +133,7 @@ public class InWaitingActivity extends BaseWaitingActivity {
     @Override
     protected void parseData(byte[] array) {
         if (array[1] == (byte) 0x00) {
-            mBleComManager.destroy();
+//            mBleComManager.destroy();
             MDevice device;
 
             if (mEnterFrom == ENTER_FORM_SPLASH) {

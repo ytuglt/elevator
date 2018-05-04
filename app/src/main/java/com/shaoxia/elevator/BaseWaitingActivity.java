@@ -273,8 +273,8 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
         Logger.d(TAG, "onPause: ");
         if (mBleComManager != null) {
             mIsComunicating = false;
-            mBleComManager.disconnect();
-            mBleComManager.destroy();
+//            mBleComManager.disconnect();
+//            mBleComManager.destroy();
         }
     }
 
@@ -327,9 +327,9 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
     @Override
     public void onReceiveData(byte[] array) {
         Logger.d(TAG, "onReceiveData: " + StringUtils.ByteArraytoHex(array));
-        if (mBleComManager != null) {
-            mBleComManager.disconnect();
-        }
+//        if (mBleComManager != null) {
+//            mBleComManager.disconnect();
+//        }
         if (!checkData(array)) {
             Log.d(TAG, "onReceiveData: checkdata errror");
             return;

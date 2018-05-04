@@ -204,8 +204,6 @@ public class BleComManager {
                         continue;
                     }
                 }
-//                sendQueryData();
-//                writeData();
             }
         }
     }
@@ -213,24 +211,7 @@ public class BleComManager {
     private void writeData() {
         Logger.d(TAG, "writeData: " + StringUtils.ByteArraytoHex(mSendData));
         BleHelper.writeCharacteristic(writeCharacteristic, mSendData);
-        Logger.d(TAG, "writeData: post stopConnectRunnable");
-        mHander.removeCallbacks(stopConnectRunnable);
-        mHander.postDelayed(stopConnectRunnable, Configure.DEFAULT_CONNECT_TIME);
     }
-
-    //停止扫描
-    private Runnable stopConnectRunnable = new Runnable() {
-
-        @Override
-        public void run() {
-            Logger.d(TAG, "stopConnectRunnable run: ");
-            disconnectBle();
-
-            if (mOnComListener != null) {
-                mOnComListener.onConnectFailed();
-            }
-        }
-    };
 
     private void disconnectBle() {
         BleHelper.stopBroadcastDataNotify(notifyCharacteristic);
@@ -243,16 +224,17 @@ public class BleComManager {
             mOnComListener.onCommunicating();
         }
         mSendData = array;
-        mHander.postDelayed(stopConnectRunnable, 10000);
-        BleHelper.connectDevice(mContext, mDevAddress, mDevName);
+        if (BluetoothLeService.getConnectionState() == BluetoothLeService.STATE_DISCONNECTED) {
+            Logger.d(TAG, "sendData: do connect first");
+            BleHelper.connectDevice(mContext, mDevAddress, mDevName);
+        }else{
+            Logger.d(TAG, "sendData: write direct ");
+            writeData();
+        }
     }
 
     public void disconnect() {
         Logger.d(TAG, "disconnect: ");
-        if (mHander != null) {
-            Logger.d(TAG, "disconnect: remove stopConnectRunnable");
-            mHander.removeCallbacks(stopConnectRunnable);
-        }
         BleHelper.stopBroadcastDataNotify(notifyCharacteristic);
         BleHelper.disconnectDevice();
     }

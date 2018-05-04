@@ -107,8 +107,6 @@ public class OutWaitingActivity extends BaseWaitingActivity {
         }
 
         if (isOff) {
-//            mBleComManager.disconnect();
-            mBleComManager.destroy();
             Intent intent = new Intent(this, OutArrivalActivity.class);
             Bundle bundle = new Bundle();
             bundle.putSerializable("device", mDevice);//序列化
