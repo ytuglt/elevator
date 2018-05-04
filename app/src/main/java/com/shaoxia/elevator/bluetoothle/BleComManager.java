@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import com.shaoxia.elevator.bluetoothle.BlueToothLeService.BluetoothLeService;
 import com.shaoxia.elevator.bluetoothle.utils.Constants;
@@ -90,6 +91,8 @@ public class BleComManager {
                 byte[] array = intent.getByteArrayExtra(Constants.EXTRA_BYTE_VALUE);
                 if (mOnComListener != null) {
                     Logger.d(TAG, "onReceiveData: " + StringUtils.ByteArraytoHex(array));
+                    mHasReceiveData = true;
+                    mHander.removeCallbacks(mReWriteRunnable);
                     mOnComListener.onReceiveData(array);
                 } else {
                     Logger.e(TAG, "doConnectReceiveLogic: mOnComListener is null");
@@ -208,9 +211,23 @@ public class BleComManager {
         }
     }
 
+    private boolean mHasReceiveData = false;
+
+    private Runnable mReWriteRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!mHasReceiveData) {
+                Logger.d(TAG, "run: mReWriteRunnable do rewrite data");
+                writeData();
+            }
+        }
+    };
+
     private void writeData() {
+        mHasReceiveData = false;
         Logger.d(TAG, "writeData: " + StringUtils.ByteArraytoHex(mSendData));
         BleHelper.writeCharacteristic(writeCharacteristic, mSendData);
+        mHander.postDelayed(mReWriteRunnable, 3000);
     }
 
     private void disconnectBle() {

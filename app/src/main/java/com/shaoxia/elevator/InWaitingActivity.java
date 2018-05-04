@@ -76,6 +76,11 @@ public class InWaitingActivity extends BaseWaitingActivity {
         cmd[3] = (byte) 0x00;
         cmd[3] = VerifyUtils.getCheckNum(cmd);
 
+//        byte[] cmd = new byte[3];
+//        cmd[0] = (byte) 0xb5;
+//        cmd[1] = (byte) 0x01;
+//        cmd[2] = (byte) 0xB6;
+
         mBleComManager.sendData(cmd);
     }
 
@@ -99,12 +104,20 @@ public class InWaitingActivity extends BaseWaitingActivity {
         mBleComManager.setDevName(mCopDevice.getDevName());
 
         getFloor();
+        // TODO
         byte[] cmd = new byte[4];
         cmd[0] = (byte) 0xb5;
         cmd[1] = mRealFloor;
         cmd[2] = (byte) 0x80;
         cmd[3] = (byte) 0x00;
         cmd[3] = VerifyUtils.getCheckNum(cmd);
+
+//        byte[] cmd = new byte[3];
+//        cmd[0] = (byte) 0xb5;
+//        cmd[1] = (byte) 0x00;
+//        cmd[2] = (byte) 0xB6;
+
+        //TODO
 
         mBleComManager.sendData(cmd);
     }

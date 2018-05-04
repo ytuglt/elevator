@@ -243,6 +243,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     @Override
     protected void onResume() {
         super.onResume();
+        mBleComManager.setOnComListener(this);
         Logger.d(TAG, "onResume: ");
     }
 
@@ -508,6 +509,7 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
             viewHolder.updateWheelData();
         }
         mAdapter.notifyDataSetChanged();
+        setViewState(MDevice.IDLE);
     }
 
     private boolean checkData(byte[] array) {
@@ -581,11 +583,11 @@ public class SplashActivity extends BaseActivity implements BleScanManager.OnSto
     @Override
     public void onRerefsh() {
         Logger.d(TAG, "onRerefsh: ");
-//        if (mIsSanning) {
-//            Logger.d(TAG, "onRerefsh: is mIsSanning ");
-//            Toast.makeText(this, "Scanning,please wait", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
+        if (mIsSanning) {
+            Logger.d(TAG, "onRerefsh: is mIsSanning ");
+            Toast.makeText(this, "Scanning,please wait", Toast.LENGTH_SHORT).show();
+            return;
+        }
 //
 //        if (mIsComunicating) {
 //            Logger.d(TAG, "onRerefsh: is communicating ");
