@@ -165,6 +165,8 @@ public class InWaitingActivity extends BaseWaitingActivity {
             intent.putExtra("isUp", mIsUp);
             startActivity(intent);
             finish();
+        }else {
+            queryStatus();
         }
     }
 

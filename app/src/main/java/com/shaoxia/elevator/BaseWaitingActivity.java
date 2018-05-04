@@ -27,7 +27,7 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
 
     public static final String DEVICE_KEY = "device";
 
-    private static final int QUERY_INTERVAL = 100;
+    protected static final int QUERY_INTERVAL = 500;
 
     protected MDevice mDevice;
     protected boolean mIsUp;
@@ -40,7 +40,7 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
 //    private TextView mTvFour;
 //    private TextView mTvFive;
 
-    private Handler mHandler;
+    protected Handler mHandler;
 
     protected boolean mIsComunicating;
 
@@ -264,7 +264,7 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
         Logger.d(TAG, "onResume: ");
         mBleComManager = BleComManager.getInstance(this);
         mBleComManager.setOnComListener(this);
-        getStatus();
+//        getStatus();
     }
 
     @Override
@@ -292,6 +292,15 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
 
     protected abstract void getStatus();
 
+    protected void queryStatus() {
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                getStatus();
+            }
+        }, QUERY_INTERVAL);
+    }
+
     @Override
     public void onCommunicating() {
         Logger.d(TAG, "onCommunicating: ");
@@ -311,12 +320,12 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
             Logger.d(TAG, "onBleDisconnected: isFinishing");
             return;
         }
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                getStatus();
-            }
-        }, QUERY_INTERVAL);
+//        mHandler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                getStatus();
+//            }
+//        }, QUERY_INTERVAL);
     }
 
     @Override
@@ -327,6 +336,7 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
     @Override
     public void onReceiveData(byte[] array) {
         Logger.d(TAG, "onReceiveData: " + StringUtils.ByteArraytoHex(array));
+        mIsComunicating = false;
 //        if (mBleComManager != null) {
 //            mBleComManager.disconnect();
 //        }
