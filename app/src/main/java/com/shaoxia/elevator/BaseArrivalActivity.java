@@ -124,8 +124,8 @@ public abstract class BaseArrivalActivity extends BaseActivity {
     }
 
     protected void setLightFloorBg(TextView textView) {
-        textView.setBackgroundResource(R.drawable.floor_back_sel);
-        textView.setTextColor(getResources().getColor(R.color.floor_light, null));
+        textView.setBackgroundResource(R.drawable.in_arrival_light_floor_bg);
+        textView.setTextColor(getResources().getColor(R.color.call_enable, null));
     }
 
     protected abstract int getLightPos();

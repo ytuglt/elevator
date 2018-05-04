@@ -228,8 +228,8 @@ public abstract class BaseWaitingActivity extends BaseActivity implements BleCom
 
 
     private void lightCurFloor(TextView textView) {
-        textView.setBackgroundResource(R.drawable.floor_back_sel);
-        textView.setTextColor(getResources().getColor(R.color.floor_light, null));
+        textView.setBackgroundResource(R.drawable.in_arrival_light_floor_bg);
+        textView.setTextColor(getResources().getColor(R.color.call_enable, null));
         textView.setShadowLayer(40, 0, 0, getResources().getColor(R.color.floor_light, null));
     }
 
